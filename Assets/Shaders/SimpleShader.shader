@@ -21,7 +21,7 @@ Shader "Custom/Chapter 5/SimpleShader" {
 				float4 texcoord : TEXCOORD0;				// TEXCOORD0：纹理坐标填充到 texcoord
 			};
 
-			struct v2f {
+			struct v2f {									// 顶点到片着色器
 				float4 pos : SV_POSITION;					// 裁剪空间中的顶点坐标
 				fixed3 color : COLOR0;						// 存储颜色信息
 			};
