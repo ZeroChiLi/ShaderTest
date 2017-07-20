@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-
+// 第一个Shader
 Shader "Custom/Chapter 5/SimpleShader" {
 	Properties {
 		_Color ("Color Tint",Color) = (1.0,1.0,1.0,1.0)		// 声明一个Color类型的属性

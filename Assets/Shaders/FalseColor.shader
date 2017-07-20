@@ -1,5 +1,6 @@
 ﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
+// 假彩色图像，用来Debug
 Shader "Custom/Chapter 5/FalseColor" {
 	SubShader {
 		Pass {
