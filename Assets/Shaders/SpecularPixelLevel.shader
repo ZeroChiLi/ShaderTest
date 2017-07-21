@@ -1,6 +1,6 @@
 ﻿
-// 高光反射，逐顶点光照
-Shader "Custom/Chapter 6/SpecularVertexLevel" {
+// 高光反射，逐像素光照
+Shader "Custom/Chapter 6/SpecularPixelLevel" {
 	Properties {
 		_Diffuse ("Diffuse",Color) = (1,1,1,1)
 		_Specular ("Specular",Color) = (1,1,1,1)
@@ -28,37 +28,37 @@ Shader "Custom/Chapter 6/SpecularVertexLevel" {
 
 			struct v2f {
 				float4 pos : SV_POSITION;
-				fixed3 color : COLOR0;
+				float3 worldNormal : TEXCOORD0;
+				float3 worldPos : TEXCOORD1;
 			};
 
 			v2f vert (a2v v){
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
-				
-				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
-
-				fixed3 worldNormal = normalize(mul(v.normal,(float3x3)unity_WorldToObject));
-
-				fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
-
-				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * saturate(dot(worldNormal,worldLightDir));
-				
-				// 计算获得出射方向
-				fixed reflectDic = normalize(reflect(-worldLightDir,worldNormal));
-
-				// 视觉方向
-				fixed viewDir = normalize(_WorldSpaceCameraPos.xyz - mul(unity_ObjectToWorld,v.vertex).xyz);
-
-				// 高光反射系数
-				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(reflectDic,viewDir)),_Gloss);
-
-				o.color = ambient + diffuse + specular;
+				o.worldNormal = mul(v.normal,(float3x3)unity_WorldToObject);	
+				o.worldPos = mul(unity_ObjectToWorld,v.vertex).xyz;
 
 				return o;
 			}
 
 			fixed4 frag(v2f i) : SV_Target {
-				return fixed4(i.color,1.0);
+				
+				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
+
+				fixed3 worldNormal = normalize(i.worldNormal);
+				fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
+				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * saturate(dot(worldNormal,worldLightDir));
+				
+				// 反射角
+				fixed reflectDic = normalize(reflect(-worldLightDir,worldNormal));
+
+				// 视觉方向
+				fixed viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
+
+				// 高光反射系数
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(saturate(dot(reflectDic,viewDir)),_Gloss);
+
+				return fixed4(ambient + diffuse + specular,1.0);
 			}
 
 			ENDCG
