@@ -1,6 +1,6 @@
 ﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-
+// 单张纹理
 Shader "Custom/Chapter 7/SingleTexture" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
