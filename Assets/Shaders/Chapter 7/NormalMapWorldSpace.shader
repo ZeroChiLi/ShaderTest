@@ -1,6 +1,6 @@
 ﻿
-// 法线纹理，切线空间下
-Shader "Custom/Chapter 7/NormalMapTangentSpace" {
+// 法线纹理，世界空间下
+Shader "Custom/Chapter 7/NormalMapWorldSpace" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Main Tex", 2D) = "white" {}
@@ -39,8 +39,9 @@ Shader "Custom/Chapter 7/NormalMapTangentSpace" {
 			struct v2f {
 				float4 pos : SV_POSITION;
 				float4 uv : TEXCOORD0;
-				float3 lightDir : TEXCOORD1;
-				float3 viewDir : TEXCOORD2;
+				float4 TtoW0 : TEXCOORD1;		// 切线到世界空间变换矩阵3x3。w分量作为世界空间顶点位置
+				float4 TtoW1 : TEXCOORD2;
+				float4 TtoW2 : TEXCOORD3;
 			};
 
 			v2f vert(a2v v) {
@@ -50,40 +51,38 @@ Shader "Custom/Chapter 7/NormalMapTangentSpace" {
 				o.uv.xy = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;	// xy存主纹理的纹理坐标
 				o.uv.zw = v.texcoord.xy * _BumpMap_ST.xy + _BumpMap_ST.zw;	// zw存凹凸感的纹理坐标
 
-				//float3 binormal = cross(normalize(v.normal),normalize(v.tangent.xyz))*v.tangent.w;	// 副切线
-				//float3x3 rotation = float3x3(v.tangent.xyz,binormal,v.normal);
-				TANGENT_SPACE_ROTATION;			// 等价上面两句。在UnityCG.cginc
+				// 计算世界空间下的顶点切线、副切线、法线
+				float3 worldPos = mul(unity_ObjectToWorld,v.vertex).xyz;
+				fixed3 worldNormal = UnityObjectToWorldNormal(v.normal);
+				fixed3 worldTangent = UnityObjectToWorldNormal(v.tangent.xyz);
+				fixed3 worldBinormal = cross(worldNormal,worldTangent) * v.tangent.w;
 
-				o.lightDir = mul(rotation,ObjSpaceLightDir(v.vertex)).xyz;	// 获取模型空间下的光照和视角，转换到切线空间
-				o.viewDir = mul(rotation,ObjSpaceViewDir(v.vertex)).xyz;
+				// 变换矩阵，类似转置，每一行按照列摆放
+				o.TtoW0 = float4(worldTangent.x,worldBinormal.x,worldNormal.x,worldPos.x);
+				o.TtoW1 = float4(worldTangent.y,worldBinormal.y,worldNormal.y,worldPos.y);
+				o.TtoW2 = float4(worldTangent.z,worldBinormal.z,worldNormal.z,worldPos.z);
 
 				return o;
 			}
 
 			fixed4 frag(v2f i) : SV_TARGET {
-				fixed3 tangentLightDir = normalize(i.lightDir);
-				fixed3 tangetViewDir = normalize(i.viewDir);
+				float3 worldPos = float3(i.TtoW0.w,i.TtoW1.w,i.TtoW2.w);
+				fixed3 lightDir = normalize(UnityWorldSpaceLightDir(worldPos));
+				fixed3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
 
-				fixed4 packedNormal = tex2D(_BumpMap,i.uv.zw);
-				fixed3 tangentNormal;
+				fixed3 bump = UnpackNormal(tex2D(_BumpMap,i.uv.zw));
+				bump.xy *= _BumpScale;
+				bump.z = sqrt(1.0 - saturate(dot(bump.xy,bump.xy)));	// 根号下 1 - (xy)2
 
-				// 如果法线纹理类型没有设置成Normal map
-				//tangentNormal.xy = (packedNormal.xy * 2 - 1) * _BumpScale;	// 像素映射回法线，乘于凹凸程度
-				//tangentNormal.z = sqrt(1.0 - saturate(dot(tangentNormal.xy,tangentNormal.xy)));
-
-				// 设置了Normal map类型
-				tangentNormal = UnpackNormal(packedNormal);
-				tangentNormal.xy *= _BumpScale;
-				tangentNormal.z = sqrt(1.0 - saturate(dot(tangentNormal.xy,tangentNormal.xy)));
+				bump = normalize(half3(dot(i.TtoW0.xyz,bump),dot(i.TtoW1.xyz,bump),dot(i.TtoW2.xyz,bump)));	// 转换到世界空间
 
 				fixed3 albedo = tex2D(_MainTex,i.uv).rgb * _Color.rgb;		// 获取纹理和其坐标计算纹理值，乘于颜色，作为反射率
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;		// 反射率和环境光相乘得到环境光部分
-				fixed3 diffuse = _LightColor0.rbg * albedo * max(0,dot(tangentNormal,tangentLightDir));	// 漫反射公式
-				fixed3 halfDir = normalize(tangentLightDir + tangetViewDir);
-				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(tangentNormal,halfDir)),_Gloss);//BlinnPhong
+				fixed3 diffuse = _LightColor0.rbg * albedo * max(0,dot(bump,lightDir));	// 漫反射公式
+				fixed3 halfDir = normalize(lightDir + viewDir);
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(bump,halfDir)),_Gloss);//BlinnPhong
 				return fixed4(ambient + diffuse + specular,1.0);
 			}
-
 			ENDCG
 		}
 	}
