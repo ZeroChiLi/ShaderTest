@@ -1,17 +1,20 @@
 ﻿
-// 透明测试
-Shader "Custom/Chapter 8/AlphaTest" {
+// 透明混合
+Shader "Custom/Chapter 8/AlphaBlend" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Main Tex", 2D) = "white" {}
-		_Cutoff ("Alpha Cutoff", Range(0,1)) = 0.5			// 透明测试判断条件
+		_AlphaScale ("Alpha Scale", Range(0,1)) = 1		// 整体透明度
 	}
 	SubShader {
-		// 渲染队列：透明测试；不受投影器影响；指名这个Shader提前归入TransparentCutout组。
-		Tags { "Queue"="AlphaTest" "IgnoreProjector"="True" "RenderType"="TransparentCutout" }
+		// 渲染队列：透明混合队列，在透明测试之后；不受投影器影响；指名这个Shader提前归入Transparent组。
+		Tags { "Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent" }
 
 		Pass {
 			Tags { "LightMode"="ForwardBase" }
+
+			ZWrite Off							// 关闭深度写入
+			Blend SrcAlpha OneMinusSrcAlpha		// 开启混合模式。SrcAlpha：源颜色混合因子，OneMinusSrcAlpha：已存在颜色混合因子
 		
 			CGPROGRAM
 
@@ -23,7 +26,7 @@ Shader "Custom/Chapter 8/AlphaTest" {
 			fixed4 _Color;
 			sampler2D _MainTex;
 			float4 _MainTex_ST;
-			fixed _Cutoff;
+			fixed _AlphaScale;
 
 			struct a2v {
 				float4 vertex : POSITION;
@@ -50,19 +53,17 @@ Shader "Custom/Chapter 8/AlphaTest" {
 			fixed4 frag(v2f i) : SV_TARGET {
 				fixed3 worldNormal = normalize(i.worldNormal);
 				fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
-
 				fixed4 texColor = tex2D(_MainTex,i.uv);
 
-				clip(texColor.a - _Cutoff);					// 透明测试（小于阈值就丢掉片元）。等价下面这个判断。
-				//if ((texColor.a - _Cutoff) < 0.0) { discard; }
+				//clip(texColor.a - _Cutoff);					// 移除透明测试。
 
 				fixed3 albedo = texColor.rgb * _Color.rgb;
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;
 				fixed3 diffuse = _LightColor0.rbg * albedo * max(0,dot(worldNormal,worldLightDir));
-				return fixed4(ambient + diffuse,1.0);
+				return fixed4(ambient + diffuse,texColor.a * _AlphaScale);		// 透明通道乘于材质参数				
 			}
 			ENDCG
 		}
 	}
-	FallBack "Transparent/Cutout/VertexLit"
+	FallBack "Transparent/VertexLit"
 }
