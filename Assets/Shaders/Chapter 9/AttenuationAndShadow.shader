@@ -1,6 +1,6 @@
 ﻿
-// 获取阴影
-Shader "Custom/Chapter 9/Shadow" {
+// 统一管理光照衰减和阴影
+Shader "Custom/Chapter 9/AttenuationAndShadow" {
 	Properties {
 		_Diffuse ("Diffuse", Color) = (1, 1, 1, 1)
 		_Specular ("Specular", Color) = (1, 1, 1, 1)
@@ -9,82 +9,12 @@ Shader "Custom/Chapter 9/Shadow" {
 	SubShader {
 		Tags { "RenderType"="Opaque" }
 		
-		// 环境光和方向光
 		Pass {
 			Tags { "LightMode"="ForwardBase" }
 		
 			CGPROGRAM
 			
 			#pragma multi_compile_fwdbase	
-			
-			#pragma vertex vert
-			#pragma fragment frag
-			
-			#include "Lighting.cginc"
-			#include "AutoLight.cginc"			// 计算阴影的宏
-			
-			fixed4 _Diffuse;
-			fixed4 _Specular;
-			float _Gloss;
-			
-			struct a2v {
-				float4 vertex : POSITION;
-				float3 normal : NORMAL;
-			};
-			
-			struct v2f {
-				float4 pos : SV_POSITION;
-				float3 worldNormal : TEXCOORD0;
-				float3 worldPos : TEXCOORD1;
-				SHADOW_COORDS(2)					// 对阴影纹理采样的坐标，参数为下一个可用插值寄存器的索引值（前面TEXCOORD0和1）
-			};
-			
-			v2f vert(a2v v) {
-			 	v2f o;
-			 	o.pos = UnityObjectToClipPos(v.vertex);
-			 	
-			 	o.worldNormal = UnityObjectToWorldNormal(v.normal);
-
-			 	o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-			 	
-			 	TRANSFER_SHADOW(o);					// 计算上一步中声明的阴影纹理坐标
-			 	
-			 	return o;
-			}
-			
-			fixed4 frag(v2f i) : SV_Target {
-				fixed3 worldNormal = normalize(i.worldNormal);
-				fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
-				
-				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
-
-			 	fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * max(0, dot(worldNormal, worldLightDir));
-
-			 	fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
-			 	fixed3 halfDir = normalize(worldLightDir + viewDir);
-			 	fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0, dot(worldNormal, halfDir)), _Gloss);
-
-				fixed atten = 1.0;
-				
-				fixed shadow = SHADOW_ATTENUATION(i);	// 计算阴影值
-				
-				return fixed4(ambient + (diffuse + specular) * atten * shadow, 1.0);
-			}
-			
-			ENDCG
-		}
-	
-		// 其他像素光
-		Pass {
-			Tags { "LightMode"="ForwardAdd" }
-			
-			Blend One One
-		
-			CGPROGRAM
-			
-			#pragma multi_compile_fwdadd
-			// 下面是加点光和聚光阴影
-//			#pragma multi_compile_fwdadd_fullshadows
 			
 			#pragma vertex vert
 			#pragma fragment frag
@@ -102,42 +32,104 @@ Shader "Custom/Chapter 9/Shadow" {
 			};
 			
 			struct v2f {
-				float4 position : SV_POSITION;
+				float4 pos : SV_POSITION;
 				float3 worldNormal : TEXCOORD0;
 				float3 worldPos : TEXCOORD1;
+				SHADOW_COORDS(2)
 			};
 			
 			v2f vert(a2v v) {
 			 	v2f o;
-			 	o.position = UnityObjectToClipPos(v.vertex);
+			 	o.pos = UnityObjectToClipPos(v.vertex);
 			 	
 			 	o.worldNormal = UnityObjectToWorldNormal(v.normal);
 			 	
 			 	o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+			 	
+			 	TRANSFER_SHADOW(o);
 			 	
 			 	return o;
 			}
 			
 			fixed4 frag(v2f i) : SV_Target {
 				fixed3 worldNormal = normalize(i.worldNormal);
-				#ifdef USING_DIRECTIONAL_LIGHT
-					fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
-				#else
-					fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz - i.worldPos.xyz);
-				#endif
-
+				fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
+				
+				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
+				
 			 	fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * max(0, dot(worldNormal, worldLightDir));
 
-			 	fixed3 viewDir = normalize(_WorldSpaceCameraPos.xyz - i.worldPos.xyz);
+			 	fixed3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
 			 	fixed3 halfDir = normalize(worldLightDir + viewDir);
 			 	fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0, dot(worldNormal, halfDir)), _Gloss);
 
-				#ifdef USING_DIRECTIONAL_LIGHT
-					fixed atten = 1.0;
-				#else
-					float3 lightCoord = mul(unity_WorldToLight, float4(i.worldPos, 1)).xyz;
-					fixed atten = tex2D(_LightTexture0, dot(lightCoord, lightCoord).rr).UNITY_ATTEN_CHANNEL;
-				#endif
+				// 使用内置宏同时计算光照衰减和阴影。自动声明atten变量。
+				UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
+				
+				return fixed4(ambient + (diffuse + specular) * atten, 1.0);
+			}
+			
+			ENDCG
+		}
+	
+		Pass {
+			Tags { "LightMode"="ForwardAdd" }
+			
+			Blend One One
+		
+			CGPROGRAM
+			
+			#pragma multi_compile_fwdadd
+//			#pragma multi_compile_fwdadd_fullshadows		// 需要就添加这个Pass块添加阴影效果
+			
+			#pragma vertex vert
+			#pragma fragment frag
+			
+			#include "Lighting.cginc"
+			#include "AutoLight.cginc"
+			
+			fixed4 _Diffuse;
+			fixed4 _Specular;
+			float _Gloss;
+			
+			struct a2v {
+				float4 vertex : POSITION;
+				float3 normal : NORMAL;
+			};
+			
+			struct v2f {
+				float4 pos : SV_POSITION;
+				float3 worldNormal : TEXCOORD0;
+				float3 worldPos : TEXCOORD1;
+				SHADOW_COORDS(2)
+			};
+			
+			v2f vert(a2v v) {
+			 	v2f o;
+			 	o.pos = UnityObjectToClipPos(v.vertex);
+			 	
+			 	o.worldNormal = UnityObjectToWorldNormal(v.normal);
+			 	
+			 	o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+			 	
+			 	// Pass shadow coordinates to pixel shader
+			 	TRANSFER_SHADOW(o);
+			 	
+			 	return o;
+			}
+			
+			fixed4 frag(v2f i) : SV_Target {
+				fixed3 worldNormal = normalize(i.worldNormal);
+				fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
+				
+			 	fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * max(0, dot(worldNormal, worldLightDir));
+
+			 	fixed3 viewDir = normalize(UnityWorldSpaceViewDir(i.worldPos));
+			 	fixed3 halfDir = normalize(worldLightDir + viewDir);
+			 	fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0, dot(worldNormal, halfDir)), _Gloss);
+
+				// UNITY_LIGHT_ATTENUATION not only compute attenuation, but also shadow infos
+				UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
 			 	
 				return fixed4((diffuse + specular) * atten, 1.0);
 			}
