@@ -43,6 +43,7 @@ Shader "Custom/Chapter 11/Scrolling Background" {
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
 				
+				// TRANSFORM_TEX 得到初始纹理坐标，加上偏移坐标
 				o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex) + frac(float2(_ScrollX, 0.0) * _Time.y);
 				o.uv.zw = TRANSFORM_TEX(v.texcoord, _DetailTex) + frac(float2(_Scroll2X, 0.0) * _Time.y);
 				
