@@ -1,11 +1,12 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Unity Shaders Book/Chapter 12/Gaussian Blur" {
+﻿
+// 高斯模糊
+Shader "Custom/Chapter 12/Gaussian Blur" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
-		_BlurSize ("Blur Size", Float) = 1.0
+		_BlurSize ("Blur Size", Float) = 1.0		// 模糊采样距离，过大会产生虚影（醉酒效果？）
 	}
 	SubShader {
+		// 类似C++头文件功能。使用时不用包含在Pass块，Pass中直接指定顶点和片元着色器，可避免编写两个一样的frag函数
 		CGINCLUDE
 		
 		#include "UnityCG.cginc"
@@ -49,13 +50,14 @@ Shader "Unity Shaders Book/Chapter 12/Gaussian Blur" {
 			return o;
 		}
 		
+		// 两个Pass公用片元着色器
 		fixed4 fragBlur(v2f i) : SV_Target {
 			float weight[3] = {0.4026, 0.2442, 0.0545};
 			
-			fixed3 sum = tex2D(_MainTex, i.uv[0]).rgb * weight[0];
+			fixed3 sum = tex2D(_MainTex, i.uv[0]).rgb * weight[0];		// 中间点
 			
 			for (int it = 1; it < 3; it++) {
-				sum += tex2D(_MainTex, i.uv[it*2-1]).rgb * weight[it];
+				sum += tex2D(_MainTex, i.uv[it*2-1]).rgb * weight[it];	// 和下面对称的点
 				sum += tex2D(_MainTex, i.uv[it*2]).rgb * weight[it];
 			}
 			
@@ -67,7 +69,7 @@ Shader "Unity Shaders Book/Chapter 12/Gaussian Blur" {
 		ZTest Always Cull Off ZWrite Off
 		
 		Pass {
-			NAME "GAUSSIAN_BLUR_VERTICAL"
+			NAME "GAUSSIAN_BLUR_VERTICAL"			// 定义名字。可以从其他Shader直接来使用该Pass
 			
 			CGPROGRAM
 			  

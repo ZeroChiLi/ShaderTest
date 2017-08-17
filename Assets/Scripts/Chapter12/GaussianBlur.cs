@@ -78,7 +78,7 @@ public class GaussianBlur : PostEffectsBase
             RenderTexture buffer0 = RenderTexture.GetTemporary(rtW, rtH, 0);
             buffer0.filterMode = FilterMode.Bilinear;
 
-            Graphics.Blit(src, buffer0);
+            Graphics.Blit(src, buffer0);                            // 用到所有Pass块
 
             // buffer0 存将要被处理的缓存，buffer1存搞好的
             for (int i = 0; i < iterations; i++)
