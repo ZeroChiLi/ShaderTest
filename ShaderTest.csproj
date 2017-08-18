@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\Chapter12\GaussianBlur.cs" />
     <Compile Include="Assets\Scripts\Chapter12\MotionBlur.cs" />
     <Compile Include="Assets\Scripts\Chapter12\PostEffectsBase.cs" />
+    <Compile Include="Assets\Scripts\Chapter13\MotionBlurWithDepthTexture.cs" />
     <Compile Include="Assets\Scripts\Helpers\Rotating.cs" />
     <Compile Include="Assets\Scripts\Helpers\SetPropertyAttribute.cs" />
     <Compile Include="Assets\Scripts\Helpers\Translating.cs" />
@@ -107,6 +108,7 @@
     <None Include="Assets\Shaders\Chapter 12\EdgeDetection.shader" />
     <None Include="Assets\Shaders\Chapter 12\GaussianBlur.shader" />
     <None Include="Assets\Shaders\Chapter 12\MotionBlur.shader" />
+    <None Include="Assets\Shaders\Chapter 13\MotionBlurWithDepthTexture.shader" />
     <None Include="Assets\Shaders\Chapter 5\FalseColor.shader" />
     <None Include="Assets\Shaders\Chapter 5\SimpleShader.shader" />
     <None Include="Assets\Shaders\Chapter 6\BlinnPhong.shader" />
