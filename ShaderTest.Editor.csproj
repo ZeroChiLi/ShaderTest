@@ -115,41 +115,41 @@
     <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
       <HintPath>Library\UnityAssemblies\SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
-    <Reference Include="Octokit">
-      <HintPath>Assets\Editor\GitHub\Octokit.dll</HintPath>
-    </Reference>
-    <Reference Include="GitHub.Logging">
-      <HintPath>Assets\Editor\GitHub\GitHub.Logging.dll</HintPath>
-    </Reference>
-    <Reference Include="Rackspace.Threading">
-      <HintPath>Assets\Editor\GitHub\Rackspace.Threading.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Security">
-      <HintPath>Assets\Editor\GitHub\Mono.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="ReadOnlyCollectionsInterfaces">
-      <HintPath>Assets\Editor\GitHub\ReadOnlyCollectionsInterfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="System.Threading">
-      <HintPath>Assets\Editor\GitHub\System.Threading.dll</HintPath>
-    </Reference>
-    <Reference Include="GitHub.Unity">
-      <HintPath>Assets\Editor\GitHub\GitHub.Unity.dll</HintPath>
+    <Reference Include="AsyncBridge.Net35">
+      <HintPath>Assets\Editor\GitHub\AsyncBridge.Net35.dll</HintPath>
     </Reference>
     <Reference Include="GitHub.Api">
       <HintPath>Assets\Editor\GitHub\GitHub.Api.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net.Http">
-      <HintPath>Assets\Editor\GitHub\System.Net.Http.dll</HintPath>
+    <Reference Include="GitHub.Logging">
+      <HintPath>Assets\Editor\GitHub\GitHub.Logging.dll</HintPath>
     </Reference>
-    <Reference Include="AsyncBridge.Net35">
-      <HintPath>Assets\Editor\GitHub\AsyncBridge.Net35.dll</HintPath>
+    <Reference Include="GitHub.Unity">
+      <HintPath>Assets\Editor\GitHub\GitHub.Unity.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib">
       <HintPath>Assets\Editor\GitHub\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Security">
+      <HintPath>Assets\Editor\GitHub\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Octokit">
+      <HintPath>Assets\Editor\GitHub\Octokit.dll</HintPath>
+    </Reference>
+    <Reference Include="Rackspace.Threading">
+      <HintPath>Assets\Editor\GitHub\Rackspace.Threading.dll</HintPath>
+    </Reference>
+    <Reference Include="ReadOnlyCollectionsInterfaces">
+      <HintPath>Assets\Editor\GitHub\ReadOnlyCollectionsInterfaces.dll</HintPath>
+    </Reference>
     <Reference Include="sfw.net">
       <HintPath>Assets\Editor\GitHub\sfw.net.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>Assets\Editor\GitHub\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading">
+      <HintPath>Assets\Editor\GitHub\System.Threading.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +180,7 @@
     <None Include="Assets\Shaders\Chapter 12\EdgeDetection.shader" />
     <None Include="Assets\Shaders\Chapter 12\GaussianBlur.shader" />
     <None Include="Assets\Shaders\Chapter 12\MotionBlur.shader" />
+    <None Include="Assets\Shaders\Chapter 13\FogWithDepthTexture.shader" />
     <None Include="Assets\Shaders\Chapter 13\MotionBlurWithDepthTexture.shader" />
     <None Include="Assets\Shaders\Chapter 5\FalseColor.shader" />
     <None Include="Assets\Shaders\Chapter 5\SimpleShader.shader" />
