@@ -1,6 +1,6 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Unity Shaders Book/Chapter 13/Fog With Depth Texture" {
+﻿
+// 雾效
+Shader "Custom/Chapter 13/Fog With Depth Texture" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
 		_FogDensity ("Fog Density", Float) = 1.0
@@ -13,7 +13,7 @@ Shader "Unity Shaders Book/Chapter 13/Fog With Depth Texture" {
 		
 		#include "UnityCG.cginc"
 		
-		float4x4 _FrustumCornersRay;
+		float4x4 _FrustumCornersRay;		// 这个由脚本传入
 		
 		sampler2D _MainTex;
 		half4 _MainTex_TexelSize;
@@ -26,8 +26,8 @@ Shader "Unity Shaders Book/Chapter 13/Fog With Depth Texture" {
 		struct v2f {
 			float4 pos : SV_POSITION;
 			half2 uv : TEXCOORD0;
-			half2 uv_depth : TEXCOORD1;
-			float4 interpolatedRay : TEXCOORD2;
+			half2 uv_depth : TEXCOORD1;				// 深度纹理
+			float4 interpolatedRay : TEXCOORD2;		// 插值后的像素向量
 		};
 		
 		v2f vert(appdata_img v) {
@@ -42,6 +42,7 @@ Shader "Unity Shaders Book/Chapter 13/Fog With Depth Texture" {
 				o.uv_depth.y = 1 - o.uv_depth.y;
 			#endif
 			
+			// 四个角的旋转
 			int index = 0;
 			if (v.texcoord.x < 0.5 && v.texcoord.y < 0.5) {
 				index = 0;
@@ -64,11 +65,12 @@ Shader "Unity Shaders Book/Chapter 13/Fog With Depth Texture" {
 		}
 		
 		fixed4 frag(v2f i) : SV_Target {
+			// 采样然后得到视角空间的线性深度值
 			float linearDepth = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE(_CameraDepthTexture, i.uv_depth));
-			float3 worldPos = _WorldSpaceCameraPos + linearDepth * i.interpolatedRay.xyz;
+			float3 worldPos = _WorldSpaceCameraPos + linearDepth * i.interpolatedRay.xyz;	// 时间空间相机相加
 						
 			float fogDensity = (_FogEnd - worldPos.y) / (_FogEnd - _FogStart); 
-			fogDensity = saturate(fogDensity * _FogDensity);
+			fogDensity = saturate(fogDensity * _FogDensity);					// 限制在0~1
 			
 			fixed4 finalColor = tex2D(_MainTex, i.uv);
 			finalColor.rgb = lerp(finalColor.rgb, _FogColor.rgb, fogDensity);
