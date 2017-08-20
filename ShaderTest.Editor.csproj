@@ -183,6 +183,7 @@
     <None Include="Assets\Shaders\Chapter 13\EdgeDetectNormalAndDepth.shader" />
     <None Include="Assets\Shaders\Chapter 13\FogWithDepthTexture.shader" />
     <None Include="Assets\Shaders\Chapter 13\MotionBlurWithDepthTexture.shader" />
+    <None Include="Assets\Shaders\Chapter 14\ToonShading.shader" />
     <None Include="Assets\Shaders\Chapter 5\FalseColor.shader" />
     <None Include="Assets\Shaders\Chapter 5\SimpleShader.shader" />
     <None Include="Assets\Shaders\Chapter 6\BlinnPhong.shader" />

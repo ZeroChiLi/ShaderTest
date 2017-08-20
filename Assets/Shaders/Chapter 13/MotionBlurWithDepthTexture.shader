@@ -1,6 +1,6 @@
 ﻿
 // 运动模糊（深度纹理）
-Shader "Unity Shaders Book/Chapter 13/Motion Blur With Depth Texture" {
+Shader "Custom/Chapter 13/Motion Blur With Depth Texture" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
 		_BlurSize ("Blur Size", Float) = 1.0
