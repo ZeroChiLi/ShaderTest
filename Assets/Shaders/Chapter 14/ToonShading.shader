@@ -1,6 +1,6 @@
 ﻿
 // 卡通风格渲染
-Shader "Costum/Chapter 14/Toon Shading" {
+Shader "Custom/Chapter 14/Toon Shading" {
 	Properties {
 		_Color ("Color Tint", Color) = (1, 1, 1, 1)
 		_MainTex ("Main Tex", 2D) = "white" {}
