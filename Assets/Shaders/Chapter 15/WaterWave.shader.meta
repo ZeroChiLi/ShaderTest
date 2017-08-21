@@ -1,0 +1,12 @@
+fileFormatVersion: 2
+guid: 0e6a113be1650c74594dd569ef43571e
+timeCreated: 1503334120
+licenseType: Free
+ShaderImporter:
+  defaultTextures:
+  - _MainTex: {instanceID: 0}
+  - _WaveMap: {fileID: 2800000, guid: 7136ca3789b7ac14e859043144ba31c6, type: 3}
+  - _Cubemap: {fileID: 8900000, guid: 42e169ae0e903564db027ec78621736f, type: 2}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
