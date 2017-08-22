@@ -88,6 +88,7 @@
     <Compile Include="Assets\Scripts\Chapter13\EdgeDetectNormalsAndDepth.cs" />
     <Compile Include="Assets\Scripts\Chapter13\FogWithDepthTexture.cs" />
     <Compile Include="Assets\Scripts\Chapter13\MotionBlurWithDepthTexture.cs" />
+    <Compile Include="Assets\Scripts\Chapter15\FogWithNoise.cs" />
     <Compile Include="Assets\Scripts\Helpers\Rotating.cs" />
     <Compile Include="Assets\Scripts\Helpers\SetPropertyAttribute.cs" />
     <Compile Include="Assets\Scripts\Helpers\Translating.cs" />
@@ -116,6 +117,7 @@
     <None Include="Assets\Shaders\Chapter 14\Hatching.shader" />
     <None Include="Assets\Shaders\Chapter 14\ToonShading.shader" />
     <None Include="Assets\Shaders\Chapter 15\Dissolve.shader" />
+    <None Include="Assets\Shaders\Chapter 15\FogWithNoise.shader" />
     <None Include="Assets\Shaders\Chapter 15\WaterWave.shader" />
     <None Include="Assets\Shaders\Chapter 5\FalseColor.shader" />
     <None Include="Assets\Shaders\Chapter 5\SimpleShader.shader" />
