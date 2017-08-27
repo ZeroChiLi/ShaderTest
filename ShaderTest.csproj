@@ -119,6 +119,8 @@
     <None Include="Assets\Shaders\Chapter 15\Dissolve.shader" />
     <None Include="Assets\Shaders\Chapter 15\FogWithNoise.shader" />
     <None Include="Assets\Shaders\Chapter 15\WaterWave.shader" />
+    <None Include="Assets\Shaders\Chapter 17\BumpedDiffuse.shader" />
+    <None Include="Assets\Shaders\Chapter 17\NormalExtrusion.shader" />
     <None Include="Assets\Shaders\Chapter 5\FalseColor.shader" />
     <None Include="Assets\Shaders\Chapter 5\SimpleShader.shader" />
     <None Include="Assets\Shaders\Chapter 6\BlinnPhong.shader" />
