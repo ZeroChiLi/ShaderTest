@@ -36,14 +36,12 @@ Shader "Custom/Chapter 6/SpecularVertexLevel" {
 				o.pos = UnityObjectToClipPos(v.vertex);
 				
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
-
 				fixed3 worldNormal = normalize(mul(v.normal,(float3x3)unity_WorldToObject));
-
 				fixed3 worldLightDir = normalize(_WorldSpaceLightPos0.xyz);
 
 				fixed3 diffuse = _LightColor0.rgb * _Diffuse.rgb * saturate(dot(worldNormal,worldLightDir));
 				
-				// 计算获得出射方向
+				// 计算获得出射方向。reflect：发射方向，CG提供的函数。
 				fixed reflectDic = normalize(reflect(-worldLightDir,worldNormal));
 
 				// 视觉方向
