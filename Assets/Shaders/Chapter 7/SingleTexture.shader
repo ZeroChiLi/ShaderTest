@@ -28,14 +28,14 @@ Shader "Custom/Chapter 7/SingleTexture" {
 			struct a2v {
 				float4 vertex : POSITION;
 				float3 normal : NORMAL;
-				float4 texcoord : TEXCOORD0;
+				float4 texcoord : TEXCOORD0;			// 第一组纹理
 			};
 
 			struct v2f {
 				float4 pos : SV_POSITION;
 				float3 worldNormal : TEXCOORD0;
 				float3 worldPos : TEXCOORD1;
-				float2 uv : TEXCOORD2;
+				float2 uv : TEXCOORD2;					// 存储纹理坐标
 			};
 
 			v2f vert(a2v v) {
@@ -43,7 +43,9 @@ Shader "Custom/Chapter 7/SingleTexture" {
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.worldNormal = UnityObjectToWorldNormal(v.normal);
 				o.worldPos = mul(unity_ObjectToWorld,v.vertex).xyz;
-				o.uv = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;		// 和下面一样，变换纹理
+
+				o.uv = v.texcoord.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+				// 变换纹理，同下，下面是内置函数
 				// o.uv = TRANSFORM_TEX(v.texcoord,_MainTex);
 				return o;
 			}
@@ -51,12 +53,14 @@ Shader "Custom/Chapter 7/SingleTexture" {
 			fixed4 frag(v2f i) : SV_TARGET {
 				fixed3 worldNormal = normalize(i.worldNormal);
 				fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
+
 				fixed3 albedo = tex2D(_MainTex,i.uv).rgb * _Color.rgb;		// 获取纹理和其坐标计算纹理值，乘于颜色，作为反射率
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;		// 反射率和环境光相乘得到环境光部分
 				fixed3 diffuse = _LightColor0.rbg * albedo * max(0,dot(worldNormal,worldLightDir));	// 漫反射公式
+
 				fixed3 viewDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
 				fixed3 halfDir = normalize(worldLightDir + viewDir);
-				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(worldNormal,halfDir)),_Gloss);//BlinnPhong
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(worldNormal,halfDir)),_Gloss);
 				return fixed4(ambient + diffuse + specular,1.0);
 			}
 
