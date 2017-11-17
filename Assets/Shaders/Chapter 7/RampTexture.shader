@@ -49,17 +49,18 @@ Shader "Custom/Chapter 7/RampTexture" {
 			fixed4 frag(v2f i) : SV_TARGET {
 				fixed3 worldNormal = normalize(i.worldNormal);
 				fixed3 worldLightDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
-
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz;
 
-				fixed halfLambert = 0.5 * dot(worldNormal,worldLightDir) + 0.5;			// 半兰伯特模型
+				// 半兰伯特模型
+				fixed halfLambert = 0.5 * dot(worldNormal,worldLightDir) + 0.5;
+				// 通过halfLambert值大小对渐变纹理取样。因为变换范围在[0,1]，所以可以直接作为纹理坐标值，值越大坐标越往右上。
 				fixed3 diffuseColor = tex2D(_RampTex,fixed2(halfLambert,halfLambert)).rgb * _Color.rgb;
 				
 				fixed3 diffuse = _LightColor0.rbg * diffuseColor;
 
 				fixed3 viewDir = normalize(UnityWorldSpaceLightDir(i.worldPos));
 				fixed3 halfDir = normalize(worldLightDir + viewDir);
-				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(worldNormal,halfDir)),_Gloss);//BlinnPhong
+				fixed3 specular = _LightColor0.rgb * _Specular.rgb * pow(max(0,dot(worldNormal,halfDir)),_Gloss);
 				return fixed4(ambient + diffuse + specular,1.0);
 			}
 

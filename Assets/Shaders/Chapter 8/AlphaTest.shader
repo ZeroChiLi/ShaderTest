@@ -64,5 +64,6 @@ Shader "Custom/Chapter 8/AlphaTest" {
 			ENDCG
 		}
 	}
+	// 保证使用透明度测试的物体可以正确地向其他物体投射阴影。
 	FallBack "Transparent/Cutout/VertexLit"
 }
