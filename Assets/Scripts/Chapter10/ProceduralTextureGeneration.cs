@@ -57,7 +57,7 @@ public class ProceduralTextureGeneration : MonoBehaviour
         }
     }
 
-    [SerializeField, SetProperty("blurFactor")]
+    [SerializeField,Range(0,100), SetProperty("blurFactor")]
     private float m_blurFactor = 2.0f;
     public float blurFactor
     {
@@ -106,23 +106,6 @@ public class ProceduralTextureGeneration : MonoBehaviour
             material.SetTexture("_MainTex", m_generatedTexture);
         }
     }
-    
-    /// <summary>
-    /// 混合插值颜色
-    /// </summary>
-    /// <param name="color0">颜色1</param>
-    /// <param name="color1">颜色2</param>
-    /// <param name="mixFactor">混合因子</param>
-    /// <returns></returns>
-    private Color _MixColor(Color color0, Color color1, float mixFactor)
-    {
-        Color mixColor = Color.white;
-        mixColor.r = Mathf.Lerp(color0.r, color1.r, mixFactor);
-        mixColor.g = Mathf.Lerp(color0.g, color1.g, mixFactor);
-        mixColor.b = Mathf.Lerp(color0.b, color1.b, mixFactor);
-        mixColor.a = Mathf.Lerp(color0.a, color1.a, mixFactor);
-        return mixColor;
-    }
 
     /// <summary>
     /// 生成程序纹理
@@ -152,11 +135,11 @@ public class ProceduralTextureGeneration : MonoBehaviour
                         // 当前像素与圆心的距离
                         float dist = Vector2.Distance(new Vector2(w, h), circleCenter) - radius;
 
-                        // 模糊圆的边界
-                        Color color = _MixColor(circleColor, new Color(pixel.r, pixel.g, pixel.b, 0.0f), Mathf.SmoothStep(0f, 1.0f, dist * edgeBlur));
+                        // 模糊圆的边界，类似抗锯齿
+                        Color color = Color.Lerp(circleColor, new Color(pixel.r, pixel.g, pixel.b, 0.0f), Mathf.SmoothStep(0f, 1.0f, dist * edgeBlur));
 
                         // 与之前的颜色混合
-                        pixel = _MixColor(pixel, color, color.a);
+                        pixel = Color.Lerp(pixel, color, color.a);
                     }
                 }
 

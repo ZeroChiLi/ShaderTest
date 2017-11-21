@@ -9,7 +9,7 @@ Shader "Custom/Chapter 10/Glass Refraction" {
 		_RefractAmount ("Refract Amount", Range(0.0, 1.0)) = 1.0	// 控制折射程度（0:只反射，1：只折射）
 	}
 	SubShader {
-		// 在所有不透明物体渲染后再渲染。
+		// Transparent：在所有不透明物体渲染后再渲染。Opaque：确保在着色器替换时，该物体在需要时正确渲染。
 		Tags { "Queue"="Transparent" "RenderType"="Opaque" }
 		
 		// 抓取屏幕图像的Pass，存入到纹理变量中。
@@ -54,7 +54,7 @@ Shader "Custom/Chapter 10/Glass Refraction" {
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
 				
-				o.scrPos = ComputeGrabScreenPos(o.pos);			// 计算抓取的屏幕图像采样坐标
+				o.scrPos = ComputeGrabScreenPos(o.pos);			// 计算抓取的屏幕图像采样坐标，在UnityCG.cginc中定义。
 				
 				o.uv.xy = TRANSFORM_TEX(v.texcoord, _MainTex);	// 计算采样坐标
 				o.uv.zw = TRANSFORM_TEX(v.texcoord, _BumpMap);
@@ -86,7 +86,9 @@ Shader "Custom/Chapter 10/Glass Refraction" {
 				
 				// 法线再转到世界空间
 				bump = normalize(half3(dot(i.TtoW0.xyz, bump), dot(i.TtoW1.xyz, bump), dot(i.TtoW2.xyz, bump)));
+				// 计算反射方向
 				fixed3 reflDir = reflect(-worldViewDir, bump);
+				// 主纹理的采样，和立方体纹理的采样
 				fixed4 texColor = tex2D(_MainTex, i.uv.xy);
 				fixed3 reflCol = texCUBE(_Cubemap, reflDir).rgb * texColor.rgb;
 				

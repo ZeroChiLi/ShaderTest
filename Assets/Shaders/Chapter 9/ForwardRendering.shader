@@ -70,7 +70,8 @@ Shader "Custom/Chapter 9/ForwardRendering" {
 		Pass {
 			Tags { "LightMode"="ForwardAdd" }
 			
-			Blend One One					// 开启光照混合
+			// 开启光照混合，与在帧缓存中的光照叠加
+			Blend One One
 		
 			CGPROGRAM
 			

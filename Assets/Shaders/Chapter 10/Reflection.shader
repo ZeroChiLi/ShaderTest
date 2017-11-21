@@ -5,7 +5,7 @@ Shader "Custom/Chapter 10/Reflection" {
 		_Color ("Color Tint", Color) = (1, 1, 1, 1)
 		_ReflectColor ("Reflection Color", Color) = (1, 1, 1, 1)	// 反射颜色
 		_ReflectAmount ("Reflect Amount", Range(0, 1)) = 1			// 反射程度
-		_Cubemap ("Reflection Cubemap", Cube) = "_Skybox" {}
+		_Cubemap ("Reflection Cubemap", Cube) = "_Skybox" {}		// 环境纹理
 	}
 	SubShader {
 		Tags { "RenderType"="Opaque" "Queue"="Geometry"}
@@ -69,7 +69,7 @@ Shader "Custom/Chapter 10/Reflection" {
 				
 				fixed3 diffuse = _LightColor0.rgb * _Color.rgb * max(0, dot(worldNormal, worldLightDir));
 				
-				// 对立方体采样
+				// 对立方体采样，CG的texCUBE函数。
 				fixed3 reflection = texCUBE(_Cubemap, i.worldRefl).rgb * _ReflectColor.rgb;
 				
 				UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
