@@ -52,7 +52,7 @@ Shader "Custom/Chapter 11/Billboard" {
 				// 通过normalDir.y 先判断法线和向上是否平行（叉积会错），来改变向上方向
 				float3 upDir = abs(normalDir.y) > 0.999 ? float3(0, 0, 1) : float3(0, 1, 0);
 				float3 rightDir = normalize(cross(upDir, normalDir));
-				upDir = normalize(cross(normalDir, rightDir));			// 不准确，再算一遍？
+				upDir = normalize(cross(normalDir, rightDir));
 				
 				// 通过三个正交基矢量，计算得到新的顶点位置
 				float3 centerOffs = v.vertex.xyz - center;

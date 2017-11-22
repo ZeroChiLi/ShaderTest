@@ -9,7 +9,7 @@ Shader "Custom/Chapter 11/Image Sequence Animation" {
     	_Speed ("Speed", Range(1, 100)) = 30					// 播放速度
 	}
 	SubShader {
-		// 通常序列帧图像包含透明通道
+		// 序列帧图像通常包含透明通道
 		Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
 		
 		Pass {
@@ -53,7 +53,7 @@ Shader "Custom/Chapter 11/Image Sequence Animation" {
 			fixed4 frag (v2f i) : SV_Target {
 				float time = floor(_Time.y * _Speed);				// floor()取整。
 				float row = floor(time / _HorizontalAmount);		// 行索引
-				float column = time - row * _HorizontalAmount;		// 列索引（直接求余也可以吧？）
+				float column = time % _HorizontalAmount;			// 列索引
 				
 //				half2 uv = float2(i.uv.x /_HorizontalAmount, i.uv.y / _VerticalAmount);
 //				uv.x += column / _HorizontalAmount;

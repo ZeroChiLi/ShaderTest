@@ -84,7 +84,8 @@ Shader "Custom/Chapter 11/Vertex Animation With Shadow" {
 			float _Speed;
 			
 			struct v2f { 
-			    V2F_SHADOW_CASTER;			// 定义阴影投射的变量
+				// 内置宏，阴影投射需要的变量
+			    V2F_SHADOW_CASTER;
 			};
 			
 			v2f vert(appdata_base v) {
@@ -93,14 +94,16 @@ Shader "Custom/Chapter 11/Vertex Animation With Shadow" {
 				float4 offset;
 				offset.yzw = float3(0.0, 0.0, 0.0);
 				offset.x = sin(_Frequency * _Time.y + v.vertex.x * _InvWaveLength + v.vertex.y * _InvWaveLength + v.vertex.z * _InvWaveLength) * _Magnitude;
-				v.vertex = v.vertex + offset;			// 计算偏移量
+				v.vertex = v.vertex + offset;
 
+				// 计算阴影
 				TRANSFER_SHADOW_CASTER_NORMALOFFSET(o)
 				
 				return o;
 			}
 			
 			fixed4 frag(v2f i) : SV_Target {
+				// 阴影投射
 			    SHADOW_CASTER_FRAGMENT(i)
 			}
 			ENDCG
