@@ -5,18 +5,6 @@
 /// </summary>
 public class BrightnessSaturationAndContrast : PostEffectsBase
 {
-
-    public Shader briSatConShader;
-    private Material briSatConMaterial;     // 获取shader的材质
-    public Material material
-    {
-        get
-        {
-            briSatConMaterial = CheckShaderAndCreateMaterial(briSatConShader, briSatConMaterial);
-            return briSatConMaterial;
-        }
-    }
-
     [Range(0.0f, 3.0f)]
     public float brightness = 1.0f;
 
@@ -25,7 +13,7 @@ public class BrightnessSaturationAndContrast : PostEffectsBase
 
     [Range(0.0f, 3.0f)]
     public float contrast = 1.0f;
-    
+
     /// <summary>
     /// 抓取屏幕图像
     /// </summary>
@@ -33,17 +21,12 @@ public class BrightnessSaturationAndContrast : PostEffectsBase
     /// <param name="dest">目标</param>
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        if (material != null)
+        if (TargetMaterial != null)
         {
-            material.SetFloat("_Brightness", brightness);
-            material.SetFloat("_Saturation", saturation);
-            material.SetFloat("_Contrast", contrast);
-
-            Graphics.Blit(src, dest, material);
+            TargetMaterial.SetFloat("_Brightness", brightness);
+            TargetMaterial.SetFloat("_Saturation", saturation);
+            TargetMaterial.SetFloat("_Contrast", contrast);
         }
-        else
-        {
-            Graphics.Blit(src, dest);
-        }
+        Graphics.Blit(src, dest, TargetMaterial);
     }
 }

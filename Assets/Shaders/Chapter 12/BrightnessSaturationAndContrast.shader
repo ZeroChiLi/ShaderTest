@@ -30,11 +30,8 @@ Shader "Custom/Chapter 12/Brightness Saturation And Contrast" {
 			// appdata_img ：在UnityCG.cginc中，只包含图像处理的顶点和纹理坐标
 			v2f vert(appdata_img v) {
 				v2f o;
-				
 				o.pos = UnityObjectToClipPos(v.vertex);
-				
 				o.uv = v.texcoord;
-						 
 				return o;
 			}
 		
@@ -45,7 +42,6 @@ Shader "Custom/Chapter 12/Brightness Saturation And Contrast" {
 				fixed3 finalColor = renderTex.rgb * _Brightness;
 				
 				// 饱和度
-				// 计算亮度值
 				fixed luminance = 0.2125 * renderTex.r + 0.7154 * renderTex.g + 0.0721 * renderTex.b;
 				fixed3 luminanceColor = fixed3(luminance, luminance, luminance);	// 饱和度为0的颜色值
 				finalColor = lerp(luminanceColor, finalColor, _Saturation);	

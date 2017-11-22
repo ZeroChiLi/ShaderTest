@@ -4,17 +4,8 @@ using System.Collections;
 /// <summary>
 /// 运动模糊（积累模糊）
 /// </summary>
-public class MotionBlur : PostEffectsBase {
-
-	public Shader motionBlurShader;
-	private Material motionBlurMaterial = null;
-
-	public Material material {  
-		get {
-			motionBlurMaterial = CheckShaderAndCreateMaterial(motionBlurShader, motionBlurMaterial);
-			return motionBlurMaterial;
-		}  
-	}
+public class MotionBlur : PostEffectsBase
+{
 
 	[Range(0.0f, 0.9f)]                         // 为1的时候完全代替当前帧的渲染结果
 	public float blurAmount = 0.5f;             // 模糊参数
@@ -26,7 +17,7 @@ public class MotionBlur : PostEffectsBase {
 	}
 
 	void OnRenderImage (RenderTexture src, RenderTexture dest) {
-		if (material != null) {
+		if (TargetMaterial != null) {
 			// 创建积累图像
 			if (accumulationTexture == null || accumulationTexture.width != src.width || accumulationTexture.height != src.height) {
 				DestroyImmediate(accumulationTexture);
@@ -38,9 +29,9 @@ public class MotionBlur : PostEffectsBase {
             // 表明需要进行一个恢复操作。渲染恢复操作：在渲染到纹理，而该纹理有没有被提前情况或销毁情况下。
             accumulationTexture.MarkRestoreExpected();          // accumulationTexture就不需要提前清空了
 
-            material.SetFloat("_BlurAmount", 1.0f - blurAmount);
+            TargetMaterial.SetFloat("_BlurAmount", 1.0f - blurAmount);
 
-			Graphics.Blit (src, accumulationTexture, material);
+			Graphics.Blit (src, accumulationTexture, TargetMaterial);
 			Graphics.Blit (accumulationTexture, dest);
 		} else {
 			Graphics.Blit(src, dest);

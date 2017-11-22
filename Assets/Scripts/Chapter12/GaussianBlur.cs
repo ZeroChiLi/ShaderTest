@@ -5,19 +5,6 @@
 /// </summary>
 public class GaussianBlur : PostEffectsBase
 {
-
-    public Shader gaussianBlurShader;
-    private Material gaussianBlurMaterial = null;
-
-    public Material material
-    {
-        get
-        {
-            gaussianBlurMaterial = CheckShaderAndCreateMaterial(gaussianBlurShader, gaussianBlurMaterial);
-            return gaussianBlurMaterial;
-        }
-    }
-
     [Range(0, 4)]
     public int iterations = 3;                  // 模糊迭代次数
 
@@ -30,16 +17,16 @@ public class GaussianBlur : PostEffectsBase
     /// 版本1（不调用）： 普通模糊
     void OnRenderImage1(RenderTexture src, RenderTexture dest)
     {
-        if (material != null)
+        if (TargetMaterial != null)
         {
             int rtW = src.width;
             int rtH = src.height;
             RenderTexture buffer = RenderTexture.GetTemporary(rtW, rtH, 0); // 屏幕大小的缓冲区，存第一个Pass执行后的模糊结果
 
             // 渲染第一个竖直Pass，存到buffer
-            Graphics.Blit(src, buffer, material, 0);
+            Graphics.Blit(src, buffer, TargetMaterial, 0);
             // 渲染第二个水平Pass，送到屏幕
-            Graphics.Blit(buffer, dest, material, 1);
+            Graphics.Blit(buffer, dest, TargetMaterial, 1);
 
             RenderTexture.ReleaseTemporary(buffer);         // 释放掉缓冲
         }
@@ -50,7 +37,7 @@ public class GaussianBlur : PostEffectsBase
     /// 版本2（不调用）： 加上缩放系数
     void OnRenderImage2(RenderTexture src, RenderTexture dest)
     {
-        if (material != null)
+        if (TargetMaterial != null)
         {
             int rtW = src.width / downSample;           // 使用小于原屏幕尺寸，减少处理像素个数，提高性能，可能更好模糊效果
             int rtH = src.height / downSample;
@@ -58,8 +45,8 @@ public class GaussianBlur : PostEffectsBase
 
             buffer.filterMode = FilterMode.Bilinear;    // 滤波设置双线性。
 
-            Graphics.Blit(src, buffer, material, 0);
-            Graphics.Blit(buffer, dest, material, 1);
+            Graphics.Blit(src, buffer, TargetMaterial, 0);
+            Graphics.Blit(buffer, dest, TargetMaterial, 1);
 
             RenderTexture.ReleaseTemporary(buffer);
         }
@@ -70,7 +57,7 @@ public class GaussianBlur : PostEffectsBase
     /// 版本3 ： 使用迭代
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
-        if (material != null)
+        if (TargetMaterial != null)
         {
             int rtW = src.width / downSample;
             int rtH = src.height / downSample;
@@ -83,17 +70,17 @@ public class GaussianBlur : PostEffectsBase
             // buffer0 存将要被处理的缓存，buffer1存搞好的
             for (int i = 0; i < iterations; i++)
             {
-                material.SetFloat("_BlurSize", 1.0f + i * blurSpread);
+                TargetMaterial.SetFloat("_BlurSize", 1.0f + i * blurSpread);
 
                 RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
 
-                Graphics.Blit(buffer0, buffer1, material, 0);       // 竖直，存到buffer1中
+                Graphics.Blit(buffer0, buffer1, TargetMaterial, 0);       // 竖直，存到buffer1中
 
                 RenderTexture.ReleaseTemporary(buffer0);            // 放掉buffer0，重新存入竖直
                 buffer0 = buffer1;
                 buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);  // 把buffer1存入水平
 
-                Graphics.Blit(buffer0, buffer1, material, 1);       
+                Graphics.Blit(buffer0, buffer1, TargetMaterial, 1);       
 
                 RenderTexture.ReleaseTemporary(buffer0);            // 再放掉buufer0，重新存入水平
                 buffer0 = buffer1;
