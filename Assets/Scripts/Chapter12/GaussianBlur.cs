@@ -12,7 +12,7 @@ public class GaussianBlur : PostEffectsBase
     public float blurSpread = 0.6f;             // 模糊范围，过大会造成虚影
 
     [Range(1, 8)]
-    public int downSample = 2;                  // 缩放系数。越大，处理像素越少，过大可能会像素化
+    public int downSample = 2;                  // 减少采样倍数的平方。越大，处理像素越少，过大可能会像素化
 
     /// 版本1（不调用）： 普通模糊
     void OnRenderImage1(RenderTexture src, RenderTexture dest)
@@ -21,7 +21,7 @@ public class GaussianBlur : PostEffectsBase
         {
             int rtW = src.width;
             int rtH = src.height;
-            RenderTexture buffer = RenderTexture.GetTemporary(rtW, rtH, 0); // 屏幕大小的缓冲区，存第一个Pass执行后的模糊结果
+            RenderTexture buffer = RenderTexture.GetTemporary(rtW, rtH, 0); // 屏幕大小的缓冲区，用于存第一个Pass执行后的模糊结果
 
             // 渲染第一个竖直Pass，存到buffer
             Graphics.Blit(src, buffer, TargetMaterial, 0);
@@ -70,7 +70,7 @@ public class GaussianBlur : PostEffectsBase
             // buffer0 存将要被处理的缓存，buffer1存搞好的
             for (int i = 0; i < iterations; i++)
             {
-                TargetMaterial.SetFloat("_BlurSize", 1.0f + i * blurSpread);
+                TargetMaterial.SetFloat("_BlurSize", 1.0f + (i + 1) * blurSpread);
 
                 RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
 
@@ -80,9 +80,9 @@ public class GaussianBlur : PostEffectsBase
                 buffer0 = buffer1;
                 buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);  // 把buffer1存入水平
 
-                Graphics.Blit(buffer0, buffer1, TargetMaterial, 1);       
+                Graphics.Blit(buffer0, buffer1, TargetMaterial, 1);
 
-                RenderTexture.ReleaseTemporary(buffer0);            // 再放掉buufer0，重新存入水平
+                RenderTexture.ReleaseTemporary(buffer0);            // 再放掉buffer0，重新存入水平
                 buffer0 = buffer1;
             }
 
@@ -90,8 +90,6 @@ public class GaussianBlur : PostEffectsBase
             RenderTexture.ReleaseTemporary(buffer0);
         }
         else
-        {
             Graphics.Blit(src, dest);
-        }
     }
 }

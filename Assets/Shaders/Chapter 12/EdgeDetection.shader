@@ -3,7 +3,7 @@
 Shader "Custom/Chapter 12/Edge Detection" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
-		_EdgeOnly ("Edge Only", Float) = 1.0							// 1：只要边缘
+		_EdgeOnly ("Edge Only", Float) = 1.0				// 0：只加边缘，1：只显示边缘，不显示原图
 		_EdgeColor ("Edge Color", Color) = (0, 0, 0, 1)
 		_BackgroundColor ("Background Color", Color) = (1, 1, 1, 1)
 	}
@@ -26,7 +26,7 @@ Shader "Custom/Chapter 12/Edge Detection" {
 			
 			struct v2f {
 				float4 pos : SV_POSITION;
-				half2 uv[9] : TEXCOORD0;
+				half2 uv[9] : TEXCOORD0;	// 对应周围（包括中心）像素纹理坐标
 			};
 			  
 			v2f vert(appdata_img v) {
@@ -53,9 +53,9 @@ Shader "Custom/Chapter 12/Edge Detection" {
 				return  0.2125 * color.r + 0.7154 * color.g + 0.0721 * color.b; 
 			}
 			
-			// Sobel算子采样，计算当前像的梯度值
+			// Sobel算子采样，计算当前像素的梯度值
 			half Sobel(v2f i) {
-				// 水平卷积核
+				// 水平卷积核、竖直卷积核
 				const half Gx[9] = {-1,  0,  1,
 										-2,  0,  2,
 										-1,  0,  1};
@@ -72,7 +72,7 @@ Shader "Custom/Chapter 12/Edge Detection" {
 					edgeY += texColor * Gy[it];
 				}
 				
-				// 越小，越可能是边缘点
+				// XY越大，最后结果越小，越可能是边缘点
 				half edge = 1 - abs(edgeX) - abs(edgeY);
 				
 				return edge;
@@ -82,9 +82,9 @@ Shader "Custom/Chapter 12/Edge Detection" {
 
 				half edge = Sobel(i);
 				
-				fixed4 withEdgeColor = lerp(_EdgeColor, tex2D(_MainTex, i.uv[4]), edge);	// 计算原图颜色值
-				fixed4 onlyEdgeColor = lerp(_EdgeColor, _BackgroundColor, edge);			// 计算传入背景色颜色值
-				return lerp(withEdgeColor, onlyEdgeColor, _EdgeOnly);						// 插值
+				fixed4 withEdgeColor = lerp(_EdgeColor, tex2D(_MainTex, i.uv[4]), edge);	// 混合边缘颜色和原图颜色，edge越小，越判定为边缘
+				fixed4 onlyEdgeColor = lerp(_EdgeColor, _BackgroundColor, edge);			// 混合边缘颜色和背景颜色。
+				return lerp(withEdgeColor, onlyEdgeColor, _EdgeOnly);						// 原图混合还是混合背景颜色的插值。
  			}
 			
 			ENDCG

@@ -3,7 +3,7 @@
 Shader "Custom/Chapter 12/Gaussian Blur" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
-		_BlurSize ("Blur Size", Float) = 1.0		// 模糊采样距离，过大会产生虚影（醉酒效果？）
+		_BlurSize ("Blur Size", Float) = 1.0		// 模糊采样距离，过大会产生虚影
 	}
 	SubShader {
 		// 类似C++头文件功能。使用时不用包含在Pass块，Pass中直接指定顶点和片元着色器，可避免编写两个一样的frag函数
@@ -25,7 +25,6 @@ Shader "Custom/Chapter 12/Gaussian Blur" {
 			o.pos = UnityObjectToClipPos(v.vertex);
 			
 			half2 uv = v.texcoord;
-			
 			o.uv[0] = uv;
 			o.uv[1] = uv + float2(0.0, _MainTex_TexelSize.y * 1.0) * _BlurSize;
 			o.uv[2] = uv - float2(0.0, _MainTex_TexelSize.y * 1.0) * _BlurSize;
@@ -40,7 +39,6 @@ Shader "Custom/Chapter 12/Gaussian Blur" {
 			o.pos = UnityObjectToClipPos(v.vertex);
 			
 			half2 uv = v.texcoord;
-			
 			o.uv[0] = uv;
 			o.uv[1] = uv + float2(_MainTex_TexelSize.x * 1.0, 0.0) * _BlurSize;
 			o.uv[2] = uv - float2(_MainTex_TexelSize.x * 1.0, 0.0) * _BlurSize;
@@ -56,6 +54,7 @@ Shader "Custom/Chapter 12/Gaussian Blur" {
 			
 			fixed3 sum = tex2D(_MainTex, i.uv[0]).rgb * weight[0];		// 中间点
 			
+			// 另外四个点
 			for (int it = 1; it < 3; it++) {
 				sum += tex2D(_MainTex, i.uv[it*2-1]).rgb * weight[it];	// 和下面对称的点
 				sum += tex2D(_MainTex, i.uv[it*2]).rgb * weight[it];
