@@ -30,7 +30,7 @@ Shader "Custom/Chapter 12/Motion Blur" {
 			return fixed4(tex2D(_MainTex, i.uv).rgb, _BlurAmount);
 		}
 		
-		// 更新A，直接返回（不受混合时影响）
+		// 更新A，直接返回（保护纹理的A通道，不受混合时透明度影响）
 		half4 fragA (v2f i) : SV_Target {
 			return tex2D(_MainTex, i.uv);
 		}

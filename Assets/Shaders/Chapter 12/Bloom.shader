@@ -40,6 +40,8 @@ Shader "Custom/Chapter 12/Bloom" {
 			
 			return c * val;		// 得到提取后的亮部区域
 		}
+
+		// --- 上面是提取较亮部分 --- 下面是融合原图和较亮部分 --- // 
 		
 		struct v2fBloom {
 			float4 pos : SV_POSITION; 
@@ -69,6 +71,7 @@ Shader "Custom/Chapter 12/Bloom" {
 		
 		ZTest Always Cull Off ZWrite Off
 		
+		// 第一个Pass：提取出较亮部分
 		Pass {  
 			CGPROGRAM  
 			#pragma vertex vertExtractBright  
@@ -77,10 +80,12 @@ Shader "Custom/Chapter 12/Bloom" {
 			ENDCG  
 		}
 		
+		// 第二第三个Pass：对较亮部分做高斯模糊，直接调用前面定义的Pass
 		UsePass "Custom/Chapter 12/Gaussian Blur/GAUSSIAN_BLUR_VERTICAL"
 		
 		UsePass "Custom/Chapter 12/Gaussian Blur/GAUSSIAN_BLUR_HORIZONTAL"
 		
+		// 第四个Pass：融合原图和经高斯模糊后的较亮部分
 		Pass {  
 			CGPROGRAM  
 			#pragma vertex vertBloom  

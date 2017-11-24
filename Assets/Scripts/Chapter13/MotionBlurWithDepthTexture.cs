@@ -1,58 +1,38 @@
 ﻿using UnityEngine;
 
 // 使用深度纹理计算运动模糊
-public class MotionBlurWithDepthTexture : PostEffectsBase {
+public class MotionBlurWithDepthTexture : PostEffectsBase
+{
+    [Range(0.0f, 1.0f)]
+    public float blurSize = 0.5f;
 
-	public Shader motionBlurShader;
-	private Material motionBlurMaterial = null;
+    private Camera targetCamera;
+    public Camera TargetCamera { get { return targetCamera = targetCamera == null ? GetComponent<Camera>() : targetCamera; } }
 
-	public Material material {  
-		get {
-			motionBlurMaterial = CheckShaderAndCreateMaterial(motionBlurShader, motionBlurMaterial);
-			return motionBlurMaterial;
-		}  
-	}
+    private Matrix4x4 previousViewProjectionMatrix;         // 上一帧摄像机的 视角x投影 矩阵
 
-	private Camera myCamera;
-    public new Camera camera
+    void OnEnable()
     {
-        get
-        {
-            if (myCamera == null)
-            {
-                myCamera = GetComponent<Camera>();
-            }
-            return myCamera;
-        }
+        TargetCamera.depthTextureMode |= DepthTextureMode.Depth;  // 设置状态以获取摄像机的深度纹理
+        previousViewProjectionMatrix = TargetCamera.projectionMatrix * TargetCamera.worldToCameraMatrix;
     }
 
-    [Range(0.0f, 1.0f)]
-	public float blurSize = 0.5f;
-
-	private Matrix4x4 previousViewProjectionMatrix;         // 上一帧摄像机的 视角x投影 矩阵
-	
-	void OnEnable() {
-		camera.depthTextureMode |= DepthTextureMode.Depth;  // 摄像机的深度纹理
-
-		previousViewProjectionMatrix = camera.projectionMatrix * camera.worldToCameraMatrix;
-	}
-	
-	void OnRenderImage (RenderTexture src, RenderTexture dest) {
-		if (material != null) {
-			material.SetFloat("_BlurSize", blurSize);
+    void OnRenderImage(RenderTexture src, RenderTexture dest)
+    {
+        if (TargetMaterial != null)
+        {
+            TargetMaterial.SetFloat("_BlurSize", blurSize);
 
             // 上一帧的矩阵
-            material.SetMatrix("_PreviousViewProjectionMatrix", previousViewProjectionMatrix);  
+            TargetMaterial.SetMatrix("_PreviousViewProjectionMatrix", previousViewProjectionMatrix);
 
-            // 投影矩阵 * 视角矩阵 ，再取逆
-			Matrix4x4 currentViewProjectionMatrix = camera.projectionMatrix * camera.worldToCameraMatrix;
-			Matrix4x4 currentViewProjectionInverseMatrix = currentViewProjectionMatrix.inverse; 
-			material.SetMatrix("_CurrentViewProjectionInverseMatrix", currentViewProjectionInverseMatrix);
-			previousViewProjectionMatrix = currentViewProjectionMatrix;
-
-			Graphics.Blit (src, dest, material);
-		} else {
-			Graphics.Blit(src, dest);
-		}
-	}
+            // 投影矩阵 * 视角矩阵 ，用于给下一帧计算该帧时的位置
+            Matrix4x4 currentViewProjectionMatrix = TargetCamera.projectionMatrix * TargetCamera.worldToCameraMatrix;
+            // 矩阵取逆，用于计算该帧的位置
+            Matrix4x4 currentViewProjectionInverseMatrix = currentViewProjectionMatrix.inverse;
+            TargetMaterial.SetMatrix("_CurrentViewProjectionInverseMatrix", currentViewProjectionInverseMatrix);
+            previousViewProjectionMatrix = currentViewProjectionMatrix;
+        }
+        Graphics.Blit(src, dest, TargetMaterial);
+    }
 }
