@@ -13,10 +13,11 @@ Shader "Custom/Chapter 14/Toon Shading" {
     SubShader {
 		Tags { "RenderType"="Opaque" "Queue"="Geometry"}
 		
+		// 第一个Pass，延展背面顶点，实现描边。
 		Pass {
 			NAME "OUTLINE"
 			
-			Cull Front		// 剔除正面，只渲染正面
+			Cull Front		// 剔除正面，只渲染背面
 			
 			CGPROGRAM
 			
@@ -43,7 +44,7 @@ Shader "Custom/Chapter 14/Toon Shading" {
 				// 顶点和法线变换到视角空间下，让描边可以在观察空间达到最好的效果
 				float4 pos = mul(UNITY_MATRIX_MV, v.vertex); 
 				float3 normal = mul((float3x3)UNITY_MATRIX_IT_MV, v.normal);  
-				normal.z = -0.5;	// 向外扩展一点，避免背面是凹进去的
+				normal.z = -0.5;	// 让法线向视角方向外扩，避免物体有背面遮挡正面
 				pos = pos + float4(normalize(normal), 0) * _Outline;		//对外扩展，出现轮廓
 				o.pos = mul(UNITY_MATRIX_P, pos);
 				
@@ -57,6 +58,7 @@ Shader "Custom/Chapter 14/Toon Shading" {
 			ENDCG
 		}
 		
+		// 第二个Pass，基于Blinn光照模型，使用自定义高光光照模型，实现高光。
 		Pass {
 			Tags { "LightMode"="ForwardBase" }
 			
@@ -116,7 +118,7 @@ Shader "Custom/Chapter 14/Toon Shading" {
 				fixed3 worldHalfDir = normalize(worldLightDir + worldViewDir);
 				
 				fixed4 c = tex2D (_MainTex, i.uv);
-				fixed3 albedo = c.rgb * _Color.rgb;		// 反射率
+				fixed3 albedo = c.rgb * _Color.rgb;
 				
 				fixed3 ambient = UNITY_LIGHTMODEL_AMBIENT.xyz * albedo;	// 环境光
 				
@@ -128,8 +130,8 @@ Shader "Custom/Chapter 14/Toon Shading" {
 				fixed3 diffuse = _LightColor0.rgb * albedo * tex2D(_Ramp, float2(diff, diff)).rgb;
 				
 				fixed spec = dot(worldNormal, worldHalfDir);
-				fixed w = fwidth(spec) * 2.0;		// 高光区域抗锯齿操作
-				fixed3 specular = _Specular.rgb * lerp(0, 1, smoothstep(-w, w, spec + _SpecularScale - 1)) * step(0.0001, _SpecularScale);	  // _SpecularScale为0会完全消除高光反射
+				fixed w = fwidth(spec) * 2.0;		// 高光区域抗锯齿操作，fwidth：邻域像素的近似导数。
+				fixed3 specular = _Specular.rgb * lerp(0, 1, smoothstep(-w, w, spec + _SpecularScale - 1)) * step(0.0001, _SpecularScale);	  // _SpecularScale为0会完全消除高光反射，smoothstep：小于-w为0，大于w为1，否则在0到1之间插值。
 				
 				return fixed4(ambient + diffuse + specular, 1.0);
 			}

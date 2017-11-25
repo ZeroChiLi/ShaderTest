@@ -72,7 +72,7 @@ Shader "Custom/Chapter 14/Hatching" {
 				o.hatchWeights0 = fixed3(0, 0, 0);
 				o.hatchWeights1 = fixed3(0, 0, 0);
 				
-				float hatchFactor = diff * 7.0;	// 放大7倍，便于分成7块
+				float hatchFactor = diff * 7.0;	// 放大7倍，便于分成7块，混合权重。
 				
 				if (hatchFactor > 6.0) {
 					// 纯白
@@ -109,6 +109,7 @@ Shader "Custom/Chapter 14/Hatching" {
 				fixed4 hatchTex3 = tex2D(_Hatch3, i.uv) * i.hatchWeights1.x;
 				fixed4 hatchTex4 = tex2D(_Hatch4, i.uv) * i.hatchWeights1.y;
 				fixed4 hatchTex5 = tex2D(_Hatch5, i.uv) * i.hatchWeights1.z;
+				// 全白和最浅的纹理混合。
 				fixed4 whiteColor = fixed4(1, 1, 1, 1) * (1 - i.hatchWeights0.x - i.hatchWeights0.y - i.hatchWeights0.z - 
 							i.hatchWeights1.x - i.hatchWeights1.y - i.hatchWeights1.z);
 				

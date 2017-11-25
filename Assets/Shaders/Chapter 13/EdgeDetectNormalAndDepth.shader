@@ -1,5 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
+﻿
 Shader "Unity Shaders Book/Chapter 13/Edge Detection Normals And Depth" {
 	Properties {
 		_MainTex ("Base (RGB)", 2D) = "white" {}
@@ -7,7 +6,7 @@ Shader "Unity Shaders Book/Chapter 13/Edge Detection Normals And Depth" {
 		_EdgeColor ("Edge Color", Color) = (0, 0, 0, 1)
 		_BackgroundColor ("Background Color", Color) = (1, 1, 1, 1)
 		_SampleDistance ("Sample Distance", Float) = 1.0
-		_Sensitivity ("Sensitivity", Vector) = (1, 1, 1, 1)		// xy作为法线和深度的灵敏度，zw没用
+		_Sensitivity ("Sensitivity", Vector) = (1, 1, 1, 1)		// x作为法线的灵敏度，y作为深度的灵敏度，zw没用
 	}
 	SubShader {
 		CGINCLUDE
@@ -41,11 +40,11 @@ Shader "Unity Shaders Book/Chapter 13/Edge Detection Normals And Depth" {
 				uv.y = 1 - uv.y;
 			#endif
 			
+			// Roberts算子 12为Gy 34为Gx
 			o.uv[1] = uv + _MainTex_TexelSize.xy * half2(1,1) * _SampleDistance;
 			o.uv[2] = uv + _MainTex_TexelSize.xy * half2(-1,-1) * _SampleDistance;
 			o.uv[3] = uv + _MainTex_TexelSize.xy * half2(-1,1) * _SampleDistance;
 			o.uv[4] = uv + _MainTex_TexelSize.xy * half2(1,-1) * _SampleDistance;
-					 
 			return o;
 		}
 		
@@ -56,11 +55,11 @@ Shader "Unity Shaders Book/Chapter 13/Edge Detection Normals And Depth" {
 			half2 sampleNormal = sample.xy;
 			float sampleDepth = DecodeFloatRG(sample.zw);
 			
-			// 法线差值，不需要知道真正法线值，只要差值
+			// 法线差值，差值大于0.1判断为变换明显，可作为边。
 			half2 diffNormal = abs(centerNormal - sampleNormal) * _Sensitivity.x;
 			int isSameNormal = (diffNormal.x + diffNormal.y) < 0.1;
 
-			// 深度差值
+			// 深度差值，差值大于中心点深度的十分之一，可作为边。
 			float diffDepth = abs(centerDepth - sampleDepth) * _Sensitivity.y;
 			int isSameDepth = diffDepth < 0.1 * centerDepth;
 			
@@ -69,7 +68,7 @@ Shader "Unity Shaders Book/Chapter 13/Edge Detection Normals And Depth" {
 		}
 		
 		fixed4 fragRobertsCrossDepthAndNormal(v2f i) : SV_Target {
-			// 四个 深度+法线纹理 采样
+			// 采样的四个算子， 深度+法线纹理 采样
 			half4 sample1 = tex2D(_CameraDepthNormalsTexture, i.uv[1]);
 			half4 sample2 = tex2D(_CameraDepthNormalsTexture, i.uv[2]);
 			half4 sample3 = tex2D(_CameraDepthNormalsTexture, i.uv[3]);
@@ -77,7 +76,7 @@ Shader "Unity Shaders Book/Chapter 13/Edge Detection Normals And Depth" {
 			
 			half edge = 1.0;
 			
-			// 两个纹理差值 0为有边
+			// Gy和Gx 0为有边
 			edge *= CheckSame(sample1, sample2);
 			edge *= CheckSame(sample3, sample4);
 			
