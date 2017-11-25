@@ -42,7 +42,7 @@ Shader "Custom/Chapter 13/Fog With Depth Texture" {
 				o.uv_depth.y = 1 - o.uv_depth.y;
 			#endif
 			
-			// 四个角的旋转
+			// 靠近哪个角选哪个
 			int index = 0;
 			if (v.texcoord.x < 0.5 && v.texcoord.y < 0.5) {
 				index = 0;
