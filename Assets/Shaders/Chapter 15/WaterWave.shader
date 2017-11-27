@@ -84,7 +84,7 @@ Shader "Custom/Chapter 15/Water Wave" {
 				fixed3 viewDir = normalize(UnityWorldSpaceViewDir(worldPos));
 				float2 speed = _Time.y * float2(_WaveXSpeed, _WaveYSpeed);
 				
-				// 对法线两次采样（模拟两层交叉水面波动），切线空间
+				// 对法线两次采样（模拟两层交叉水面波动），相加得到切线空间下的法线方向。
 				fixed3 bump1 = UnpackNormal(tex2D(_WaveMap, i.uv.zw + speed)).rgb;
 				fixed3 bump2 = UnpackNormal(tex2D(_WaveMap, i.uv.zw - speed)).rgb;
 				fixed3 bump = normalize(bump1 + bump2);
@@ -100,6 +100,7 @@ Shader "Custom/Chapter 15/Water Wave" {
 				fixed3 reflDir = reflect(-viewDir, bump);
 				fixed3 reflCol = texCUBE(_Cubemap, reflDir).rgb * texColor.rgb * _Color.rgb;
 				
+				// Schilick菲涅尔近似等式
 				fixed fresnel = pow(1 - saturate(dot(viewDir, bump)), 4);
 				fixed3 finalColor = reflCol * fresnel + refrCol * (1 - fresnel);
 				

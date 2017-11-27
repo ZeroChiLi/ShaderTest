@@ -6,10 +6,10 @@ Shader "Custom/Chapter 15/Fog With Noise" {
 		_FogColor ("Fog Color", Color) = (1, 1, 1, 1)
 		_FogStart ("Fog Start", Float) = 0.0
 		_FogEnd ("Fog End", Float) = 1.0
-		_NoiseTex ("Noise Texture", 2D) = "white" {}
+		_NoiseTex ("Noise Texture", 2D) = "white" {}		// 噪声纹理
 		_FogXSpeed ("Fog Horizontal Speed", Float) = 0.1
 		_FogYSpeed ("Fog Vertical Speed", Float) = 0.1
-		_NoiseAmount ("Noise Amount", Float) = 1
+		_NoiseAmount ("Noise Amount", Float) = 1			// 噪声数量，0为不使用噪声
 	}
 	SubShader {
 		CGINCLUDE
@@ -74,10 +74,10 @@ Shader "Custom/Chapter 15/Fog With Noise" {
 			float3 worldPos = _WorldSpaceCameraPos + linearDepth * i.interpolatedRay.xyz;
 			
 			float2 speed = _Time.y * float2(_FogXSpeed, _FogYSpeed);
-			float noise = (tex2D(_NoiseTex, i.uv + speed).r - 0.5) * _NoiseAmount;	// 随时间偏移雾效
+			float noise = (tex2D(_NoiseTex, i.uv + speed).r - 0.5) * _NoiseAmount;	// 随时间偏移雾效，-0.5是把范围控制在[-0.5,0.5]
 					
 			float fogDensity = (_FogEnd - worldPos.y) / (_FogEnd - _FogStart); 
-			fogDensity = saturate(fogDensity * _FogDensity * (1 + noise));
+			fogDensity = saturate(fogDensity * _FogDensity * (1 + noise));	// (1 + noise)：浓度倍数范围在[0.5, 1.5]内。
 			
 			fixed4 finalColor = tex2D(_MainTex, i.uv);
 			finalColor.rgb = lerp(finalColor.rgb, _FogColor.rgb, fogDensity);

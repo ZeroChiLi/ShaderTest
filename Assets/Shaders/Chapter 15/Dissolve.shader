@@ -6,7 +6,7 @@ Shader "Unity Shaders Book/Chapter 15/Dissolve" {
 		_LineWidth("Burn Line Width", Range(0.0, 0.2)) = 0.1			// 消融效果时的线宽
 		_MainTex ("Base (RGB)", 2D) = "white" {}						// 漫反射纹理
 		_BumpMap ("Normal Map", 2D) = "bump" {}							// 法线纹理
-		_BurnFirstColor("Burn First Color", Color) = (1, 0, 0, 1)		// 两个值火焰边缘值
+		_BurnFirstColor("Burn First Color", Color) = (1, 0, 0, 1)		// 火焰边缘颜色值
 		_BurnSecondColor("Burn Second Color", Color) = (1, 0, 0, 1)
 		_BurnMap("Burn Map", 2D) = "white"{}							// 噪声纹理
 	}
