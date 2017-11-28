@@ -53,13 +53,14 @@ Shader "Custom/Chapter 11/Image Sequence Animation" {
 			fixed4 frag (v2f i) : SV_Target {
 				float time = floor(_Time.y * _Speed);				// floor()取整。
 				float row = floor(time / _HorizontalAmount);		// 行索引
+				row -= (_VerticalAmount - 1);
 				float column = time % _HorizontalAmount;			// 列索引
 				
 //				half2 uv = float2(i.uv.x /_HorizontalAmount, i.uv.y / _VerticalAmount);
 //				uv.x += column / _HorizontalAmount;
 //				uv.y -= row / _VerticalAmount;						// 从上到下
 				half2 uv = i.uv + half2(column, -row);
-				uv.x /=  _HorizontalAmount;
+				uv.x /= _HorizontalAmount;
 				uv.y /= _VerticalAmount;
 				
 				fixed4 c = tex2D(_MainTex, uv);

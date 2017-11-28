@@ -1,5 +1,5 @@
 ﻿
-// 使用表明着色器
+// 使用表面着色器
 Shader "Custom/Chapter 17/Bumped Diffuse" {
 	Properties {
 		_Color ("Main Color", Color) = (1,1,1,1)

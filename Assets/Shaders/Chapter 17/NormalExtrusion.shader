@@ -18,7 +18,7 @@ Shader "Custom/Chapter 17/Normal Extrusion" {
 		// vertex:myvert - 自定义顶点修改函数
 		// finalcolor:mycolor - 自定义最后颜色修改函数
 		// addshadow - 生成阴影捕获的Pass.因为修改了顶点位置，需要重新投射
-		// exclude_path:deferred/exclude_path:prepas - 不要为延迟渲染路径生成相应的Pss
+		// exclude_path:deferred/exclude_path:prepass - 不要为延迟渲染路径生成相应的Pss
 		// nometa - 不要生成元数据的Pass (that’s used by lightmapping & dynamic global illumination to extract surface information).
 		#pragma surface surf CustomLambert vertex:myvert finalcolor:mycolor addshadow exclude_path:deferred exclude_path:prepass nometa
 		#pragma target 3.0
@@ -33,10 +33,12 @@ Shader "Custom/Chapter 17/Normal Extrusion" {
 			float2 uv_BumpMap;
 		};
 		
+		// 自定义顶点修改函数：把顶点延法线方向扩展。
 		void myvert (inout appdata_full v) {
 			v.vertex.xyz += v.normal * _Amount;
 		}
 		
+		// 表面函数
 		void surf (Input IN, inout SurfaceOutput o) {
 			fixed4 tex = tex2D(_MainTex, IN.uv_MainTex);
 			o.Albedo = tex.rgb;
@@ -44,6 +46,7 @@ Shader "Custom/Chapter 17/Normal Extrusion" {
 			o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_BumpMap));
 		}
 		
+		// 自定义兰伯特光照
 		half4 LightingCustomLambert (SurfaceOutput s, half3 lightDir, half atten) {
 			half NdotL = dot(s.Normal, lightDir);
 			half4 c;
@@ -52,6 +55,7 @@ Shader "Custom/Chapter 17/Normal Extrusion" {
 			return c;
 		}
 		
+		// 自定义最后颜色修改函数
 		void mycolor (Input IN, SurfaceOutput o, inout fixed4 color) {
 			color *= _ColorTint;
 		}
