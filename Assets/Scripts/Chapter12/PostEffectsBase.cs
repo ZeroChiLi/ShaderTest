@@ -9,7 +9,7 @@ public class PostEffectsBase : MonoBehaviour
 {
     public Shader targetShader;
     private Material targetMaterial = null;
-    public Material TargetMaterial { get { return CheckShaderAndCreateMaterial(targetShader, targetMaterial); } }
+    public Material TargetMaterial { get { return targetMaterial = CheckShaderAndCreateMaterial(targetShader, targetMaterial); } }
 
     /// <summary>
     /// 检测资源，如果不支持，关闭脚本活动
