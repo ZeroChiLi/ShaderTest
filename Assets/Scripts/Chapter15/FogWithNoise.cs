@@ -82,7 +82,9 @@ public class FogWithNoise : PostEffectsBase
             TargetMaterial.SetFloat("_FogXSpeed", fogXSpeed);
             TargetMaterial.SetFloat("_FogYSpeed", fogYSpeed);
             TargetMaterial.SetFloat("_NoiseAmount", noiseAmount);
+            Graphics.Blit(src, dest, TargetMaterial);
         }
-        Graphics.Blit(src, dest, TargetMaterial);
+        else
+            Graphics.Blit(src, dest);
     }
 }

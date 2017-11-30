@@ -32,7 +32,9 @@ public class MotionBlurWithDepthTexture : PostEffectsBase
             Matrix4x4 currentViewProjectionInverseMatrix = currentViewProjectionMatrix.inverse;
             TargetMaterial.SetMatrix("_CurrentViewProjectionInverseMatrix", currentViewProjectionInverseMatrix);
             previousViewProjectionMatrix = currentViewProjectionMatrix;
+            Graphics.Blit(src, dest, TargetMaterial);
         }
-        Graphics.Blit(src, dest, TargetMaterial);
+        else
+            Graphics.Blit(src, dest);
     }
 }

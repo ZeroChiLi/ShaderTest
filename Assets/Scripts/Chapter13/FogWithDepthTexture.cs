@@ -69,7 +69,9 @@ public class FogWithDepthTexture : PostEffectsBase
             TargetMaterial.SetFloat("_FogStart", fogStart);
             TargetMaterial.SetFloat("_FogEnd", fogEnd);
 
+            Graphics.Blit(src, dest, TargetMaterial);
         }
-        Graphics.Blit(src, dest, TargetMaterial);
+        else
+            Graphics.Blit(src, dest);
     }
 }

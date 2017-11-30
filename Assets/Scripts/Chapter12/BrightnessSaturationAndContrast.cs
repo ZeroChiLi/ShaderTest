@@ -26,7 +26,9 @@ public class BrightnessSaturationAndContrast : PostEffectsBase
             TargetMaterial.SetFloat("_Brightness", brightness);
             TargetMaterial.SetFloat("_Saturation", saturation);
             TargetMaterial.SetFloat("_Contrast", contrast);
+            Graphics.Blit(src, dest, TargetMaterial);
         }
-        Graphics.Blit(src, dest, TargetMaterial);
+        else
+            Graphics.Blit(src, dest);
     }
 }

@@ -33,7 +33,10 @@ public class EdgeDetectNormalsAndDepth : PostEffectsBase
             TargetMaterial.SetColor("_BackgroundColor", backgroundColor);
             TargetMaterial.SetFloat("_SampleDistance", sampleDistance);
             TargetMaterial.SetVector("_Sensitivity", new Vector4(sensitivityNormals, sensitivityDepth, 0.0f, 0.0f));
+            Graphics.Blit(src, dest, TargetMaterial);
         }
-        Graphics.Blit(src, dest, TargetMaterial);
+        else
+            Graphics.Blit(src, dest);
+
     }
 }

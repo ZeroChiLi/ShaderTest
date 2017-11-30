@@ -15,7 +15,9 @@ public class EdgeDetection : PostEffectsBase
             TargetMaterial.SetFloat("_EdgeOnly", edgesOnly);
             TargetMaterial.SetColor("_EdgeColor", edgeColor);
             TargetMaterial.SetColor("_BackgroundColor", backgroundColor);
+            Graphics.Blit(src, dest, TargetMaterial);
         }
-        Graphics.Blit(src, dest, TargetMaterial);
+        else
+            Graphics.Blit(src, dest);
     }
 }
