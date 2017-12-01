@@ -12,19 +12,22 @@ Shader "Custom/DrawOutline" {
 		
 		float _Outline;
         fixed4 _OutlineColor;  
-      
+		sampler2D _MainTex;
+
         struct v2f  
         {  
             float4 pos : SV_POSITION;  
 			float4 color : COLOR;  
+			float2 uv : TEXCOORD0;
+
         };  
               
-        v2f vert(appdata_full v)  
+        v2f vert_outline(appdata_full v)  
         {  
             v2f o;
-			//v.vertex.xyz += v.normal * _Outline;
+			v.vertex.xyz += v.normal * _Outline;
             o.pos = UnityObjectToClipPos(v.vertex);  
-			o.color = v.color;
+			//o.color = v.color;
             return o;  
         }  
 
@@ -33,21 +36,14 @@ Shader "Custom/DrawOutline" {
             return _OutlineColor;  
         }
 		
-		v2f vert_cull (appdata_full v) {
+		v2f vert (appdata_full v) {
 			v2f o;
-				
-			// 顶点和法线变换到视角空间下，让描边可以在观察空间达到最好的效果
-			float4 pos = mul(UNITY_MATRIX_MV, v.vertex); 
-			float3 normal = mul((float3x3)UNITY_MATRIX_IT_MV, v.normal);  
-			normal.z = -0.5;	// 让法线向视角方向外扩，避免物体有背面遮挡正面
-			pos = pos + float4(normalize(normal), 0) * _Outline;		//对外扩展，出现轮廓
-			o.pos = mul(UNITY_MATRIX_P, pos);
-				
+            o.pos = UnityObjectToClipPos(v.vertex);  
 			return o;
 		}
 
         fixed4 frag(v2f i) : SV_Target  
-        {  
+        {
             return i.color;  
         }
 
@@ -56,22 +52,27 @@ Shader "Custom/DrawOutline" {
         ENDCG  
 
 		//UsePass "Custom/Chapter 14/Toon Shading/OUTLINE"
-
-		Pass
-		{
-            CGPROGRAM  
-            #pragma vertex vert_cull  
-            #pragma fragment frag  
-            ENDCG  
-		}
 		
-		//Pass  
-  //      {     
+		Pass  
+        {     
+            CGPROGRAM  
+            #pragma vertex vert_outline 
+            #pragma fragment frag_outline  
+            ENDCG  
+        }  
+		UsePass "Custom/Chapter 12/Gaussian Blur/GAUSSIAN_BLUR_VERTICAL"
+		UsePass "Custom/Chapter 12/Gaussian Blur/GAUSSIAN_BLUR_HORIZONTAL"
+		
+		//GrabPass {"_MainTex"}
+
+		//Pass
+		//{
   //          CGPROGRAM  
   //          #pragma vertex vert  
-  //          #pragma fragment frag_outline  
+  //          #pragma fragment frag  
   //          ENDCG  
-  //      }  
+		//}
+		
 
 	} 
 	FallBack Off

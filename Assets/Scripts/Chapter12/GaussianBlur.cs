@@ -58,39 +58,45 @@ public class GaussianBlur : PostEffectsBase
     void OnRenderImage(RenderTexture src, RenderTexture dest)
     {
         if (TargetMaterial != null)
-        {
-            int rtW = src.width / downSample;
-            int rtH = src.height / downSample;
-
-            RenderTexture buffer0 = RenderTexture.GetTemporary(rtW, rtH, 0);
-            buffer0.filterMode = FilterMode.Bilinear;
-
-            Graphics.Blit(src, buffer0);                            // 用到所有Pass块
-
-            // buffer0 存将要被处理的缓存，buffer1存搞好的
-            for (int i = 0; i < iterations; i++)
-            {
-                TargetMaterial.SetFloat("_BlurSize", 1.0f + (i + 1) * blurSpread);
-
-                RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
-
-                Graphics.Blit(buffer0, buffer1, TargetMaterial, 0);       // 竖直，存到buffer1中
-
-                RenderTexture.ReleaseTemporary(buffer0);            // 放掉buffer0，重新存入竖直
-                buffer0 = buffer1;
-                buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);  // 把buffer1存入水平
-
-                Graphics.Blit(buffer0, buffer1, TargetMaterial, 1);
-
-                RenderTexture.ReleaseTemporary(buffer0);            // 再放掉buffer0，重新存入水平
-                buffer0 = buffer1;
-            }
-
-            Graphics.Blit(buffer0, dest);
-            RenderTexture.ReleaseTemporary(buffer0);
-        }
+            Post(src, dest, TargetMaterial, iterations, blurSpread, downSample);
         else
             Graphics.Blit(src, dest);
+    }
+
+    /// <summary>
+    /// 使用高斯模糊
+    /// </summary>
+    public static void Post(RenderTexture src, RenderTexture dest, Material material, int iterations, float blurSpread, int downSample)
+    {
+        int rtW = src.width / downSample;
+        int rtH = src.height / downSample;
+
+        RenderTexture buffer0 = RenderTexture.GetTemporary(rtW, rtH, 0);
+        buffer0.filterMode = FilterMode.Bilinear;
+
+        Graphics.Blit(src, buffer0);                            // 用到所有Pass块
+
+        // buffer0 存将要被处理的缓存，buffer1存搞好的
+        for (int i = 0; i < iterations; i++)
+        {
+            material.SetFloat("_BlurSize", 1.0f + (i + 1) * blurSpread);
+
+            RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
+
+            Graphics.Blit(buffer0, buffer1, material, 0);       // 竖直，存到buffer1中
+
+            RenderTexture.ReleaseTemporary(buffer0);            // 放掉buffer0，重新存入竖直
+            buffer0 = buffer1;
+            buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);  // 把buffer1存入水平
+
+            Graphics.Blit(buffer0, buffer1, material, 1);
+
+            RenderTexture.ReleaseTemporary(buffer0);            // 再放掉buffer0，重新存入水平
+            buffer0 = buffer1;
+        }
+
+        Graphics.Blit(buffer0, dest);
+        RenderTexture.ReleaseTemporary(buffer0);
     }
 
 }

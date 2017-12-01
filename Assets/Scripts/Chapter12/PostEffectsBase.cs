@@ -7,6 +7,9 @@
 [RequireComponent(typeof(Camera))]
 public class PostEffectsBase : MonoBehaviour
 {
+    private Camera mainCamera;
+    public Camera MainCamera { get { return mainCamera = mainCamera == null ? GetComponent<Camera>() : mainCamera; } }
+
     public Shader targetShader;
     private Material targetMaterial = null;
     public Material TargetMaterial { get { return CheckShaderAndCreateMaterial(targetShader,ref targetMaterial); } }
