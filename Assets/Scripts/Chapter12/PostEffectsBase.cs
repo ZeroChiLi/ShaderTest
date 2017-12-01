@@ -9,7 +9,7 @@ public class PostEffectsBase : MonoBehaviour
 {
     public Shader targetShader;
     private Material targetMaterial = null;
-    public Material TargetMaterial { get { return targetMaterial = CheckShaderAndCreateMaterial(targetShader, targetMaterial); } }
+    public Material TargetMaterial { get { return CheckShaderAndCreateMaterial(targetShader,ref targetMaterial); } }
 
     /// <summary>
     /// 检测资源，如果不支持，关闭脚本活动
@@ -40,7 +40,7 @@ public class PostEffectsBase : MonoBehaviour
     /// <param name="shader">指定shader</param>
     /// <param name="material">创建的材质</param>
     /// <returns>得到指定shader的材质</returns>
-    protected Material CheckShaderAndCreateMaterial(Shader shader, Material material)
+    protected Material CheckShaderAndCreateMaterial(Shader shader, ref Material material)
     {
         if (shader == null || !shader.isSupported)
             return null;

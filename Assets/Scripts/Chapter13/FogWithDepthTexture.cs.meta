@@ -1,11 +1,11 @@
 fileFormatVersion: 2
 guid: 3d50c1e98b095c141855e0583787b43c
-timeCreated: 1503156652
+timeCreated: 1512054937
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
   defaultReferences:
-  - fogShader: {fileID: 4800000, guid: 57b550741f823654b9c305a285def368, type: 3}
+  - targetShader: {fileID: 4800000, guid: 57b550741f823654b9c305a285def368, type: 3}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

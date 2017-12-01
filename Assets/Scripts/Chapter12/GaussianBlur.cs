@@ -92,4 +92,5 @@ public class GaussianBlur : PostEffectsBase
         else
             Graphics.Blit(src, dest);
     }
+
 }

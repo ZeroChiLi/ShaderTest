@@ -213,6 +213,8 @@
     <None Include="Assets\Shaders\Chapter 9\AttenuationAndShadow.shader" />
     <None Include="Assets\Shaders\Chapter 9\ForwardRendering.shader" />
     <None Include="Assets\Shaders\Chapter 9\Shadow.shader" />
+    <None Include="Assets\Shaders\Custom\DrawOutline.shader" />
+    <None Include="Assets\Shaders\Custom\SeletedWithOutline.shader" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
