@@ -1,79 +1,72 @@
 ﻿
-Shader "Custom/DrawOutline" {
-	Properties {
-        _MainTex("Base (RGB)", 2D) = "white" {}  
-        _BlurTex("Blur", 2D) = "white"{}  
-	}
-	SubShader {
-		Tags { "RenderType"="Opaque" "Queue"="Geometry"}
-		
-		CGINCLUDE  
-		#include "UnityCG.cginc"  
-		
-		float _Outline;
-        fixed4 _OutlineColor;  
-		sampler2D _MainTex;
-
-        struct v2f  
-        {  
-            float4 pos : SV_POSITION;  
-			float4 color : COLOR;  
-			float2 uv : TEXCOORD0;
-
-        };  
-              
-        v2f vert_outline(appdata_full v)  
-        {  
-            v2f o;
-			v.vertex.xyz += v.normal * _Outline;
-            o.pos = UnityObjectToClipPos(v.vertex);  
-			//o.color = v.color;
-            return o;  
-        }  
-
-        fixed4 frag_outline(v2f i) : SV_Target  
-        {  
-            return _OutlineColor;  
-        }
-		
-		v2f vert (appdata_full v) {
-			v2f o;
-            o.pos = UnityObjectToClipPos(v.vertex);  
-			return o;
-		}
-
-        fixed4 frag(v2f i) : SV_Target  
+Shader "Custom/Post Outline"
+{
+    Properties
+    {
+        _MainTex("Main Texture",2D)="black"{}
+        _SceneTex("Scene Texture",2D)="black"{}
+		_Color("Outline Color",Color) = (0,1,0,1)
+    }
+    SubShader 
+    {
+		Blend SrcAlpha OneMinusSrcAlpha
+        Pass 
         {
-            return i.color;  
+            CGPROGRAM
+     
+            sampler2D _MainTex;
+            float2 _MainTex_TexelSize;
+			sampler2D _SceneTex;
+			fixed4 _Color;
+ 
+            #pragma vertex vert
+            #pragma fragment frag
+            #include "UnityCG.cginc"
+             
+            struct v2f 
+            {
+                float4 pos : SV_POSITION;
+                float2 uvs : TEXCOORD0;
+            };
+             
+            v2f vert (appdata_base v) 
+            {
+                v2f o;
+                o.pos = UnityObjectToClipPos(v.vertex);
+                o.uvs = o.pos.xy / 2 + 0.5;
+                return o;
+            }
+             
+             
+            half4 frag(v2f i) : COLOR 
+            {
+                int NumberOfIterations=9;
+ 
+                float TX_x=_MainTex_TexelSize.x;
+                float TX_y=_MainTex_TexelSize.y;
+ 
+                float ColorIntensityInRadius;
+
+                for(int k=0;k<NumberOfIterations;k+=1)
+                {
+                    for(int j=0;j<NumberOfIterations;j+=1)
+                    {
+                        ColorIntensityInRadius+=tex2D(_MainTex, i.uvs.xy+float2( (k-NumberOfIterations/2)*TX_x,(j-NumberOfIterations/2)*TX_y )).r;
+                    }
+                }
+
+				if(tex2D(_MainTex,i.uvs.xy).r>0)
+					return tex2D(_SceneTex, i.uvs) ;
+				else
+					return ColorIntensityInRadius*_Color + tex2D(_SceneTex, i.uvs) ;
+		
+            }
+             
+            ENDCG
+ 
         }
-
-
-		
-        ENDCG  
-
-		//UsePass "Custom/Chapter 14/Toon Shading/OUTLINE"
-		
-		Pass  
-        {     
-            CGPROGRAM  
-            #pragma vertex vert_outline 
-            #pragma fragment frag_outline  
-            ENDCG  
-        }  
-		UsePass "Custom/Chapter 12/Gaussian Blur/GAUSSIAN_BLUR_VERTICAL"
-		UsePass "Custom/Chapter 12/Gaussian Blur/GAUSSIAN_BLUR_HORIZONTAL"
-		
-		//GrabPass {"_MainTex"}
-
-		//Pass
-		//{
-  //          CGPROGRAM  
-  //          #pragma vertex vert  
-  //          #pragma fragment frag  
-  //          ENDCG  
-		//}
-		
-
-	} 
-	FallBack Off
+		     
+    }
+    //end subshader
 }
+//end shader
