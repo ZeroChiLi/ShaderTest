@@ -29,106 +29,97 @@ public class DrawOutline : PostEffectsBase
         SetupAddtionalCamera();
     }
 
-    void OnEnable()
-    {
-        SetupAddtionalCamera();
-        additionalCamera.enabled = true;
-    }
-
-    void OnDisable()
-    {
-        additionalCamera.enabled = false;
-    }
-
-    void OnDestroy()
-    {
-        if (temRT)
-            RenderTexture.ReleaseTemporary(temRT);
-        DestroyImmediate(additionalCamera.gameObject);
-    }
-
-
     private void SetupAddtionalCamera()
     {
-        //addtionalCamera.CopyFrom(MainCamera);
-        //addtionalCamera.clearFlags = CameraClearFlags.Color;
-        //addtionalCamera.backgroundColor = Color.black;
-        //addtionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");
+        additionalCamera.CopyFrom(MainCamera);
+        additionalCamera.clearFlags = CameraClearFlags.Color;
+        additionalCamera.backgroundColor = Color.black;
+        additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");
 
 
-        if (additionalCamera)
-        {
-            additionalCamera.transform.parent = MainCamera.transform;
-            additionalCamera.transform.localPosition = Vector3.zero;
-            additionalCamera.transform.localRotation = Quaternion.identity;
-            additionalCamera.transform.localScale = Vector3.one;
-            additionalCamera.farClipPlane = MainCamera.farClipPlane;
-            additionalCamera.nearClipPlane = MainCamera.nearClipPlane;
-            additionalCamera.fieldOfView = MainCamera.fieldOfView;
-            additionalCamera.backgroundColor = Color.clear;
-            additionalCamera.clearFlags = CameraClearFlags.Color;
-            additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");
-            additionalCamera.depth = -999;
-            if (temRT == null)
-                temRT = RenderTexture.GetTemporary(additionalCamera.pixelWidth >> downSample, additionalCamera.pixelHeight >> downSample, 0);
-        }
+        //if (additionalCamera)
+        //{
+        //    additionalCamera.transform.parent = MainCamera.transform;
+        //    additionalCamera.transform.localPosition = Vector3.zero;
+        //    additionalCamera.transform.localRotation = Quaternion.identity;
+        //    additionalCamera.transform.localScale = Vector3.one;
+        //    additionalCamera.farClipPlane = MainCamera.farClipPlane;
+        //    additionalCamera.nearClipPlane = MainCamera.nearClipPlane;
+        //    additionalCamera.fieldOfView = MainCamera.fieldOfView;
+        //    additionalCamera.backgroundColor = Color.clear;
+        //    additionalCamera.clearFlags = CameraClearFlags.Color;
+        //    additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");
+        //    additionalCamera.depth = -999;
+        //    if (temRT == null)
+        //        temRT = RenderTexture.GetTemporary(additionalCamera.pixelWidth >> downSample, additionalCamera.pixelHeight >> downSample, 0);
+        //}
     }
 
     private void OnPreRender()
     {
-        if (additionalCamera && additionalCamera.enabled)
-        {
-            //渲染到RT上  
-            //首先检查是否需要重设RT，比如屏幕分辨率变化了  
-            if (temRT != null && (temRT.width != Screen.width >> downSample || temRT.height != Screen.height >> downSample))
-            {
-                RenderTexture.ReleaseTemporary(temRT);
-                temRT = RenderTexture.GetTemporary(Screen.width >> downSample, Screen.height >> downSample, 0);
-            }
-            additionalCamera.targetTexture = temRT;
-            additionalCamera.RenderWithShader(drawSimple, "");
-        }
+        //if (additionalCamera && additionalCamera.enabled)
+        //{
+        //    //渲染到RT上  
+        //    //首先检查是否需要重设RT，比如屏幕分辨率变化了  
+        //    if (temRT != null && (temRT.width != Screen.width >> downSample || temRT.height != Screen.height >> downSample))
+        //    {
+        //        RenderTexture.ReleaseTemporary(temRT);
+        //        temRT = RenderTexture.GetTemporary(Screen.width >> downSample, Screen.height >> downSample, 0);
+        //    }
+        //    additionalCamera.targetTexture = temRT;
+        //    additionalCamera.RenderWithShader(drawSimple, "");
+        //}
     }
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (TargetMaterial && temRT)
-        {
+         RenderTexture TempRT = new RenderTexture(source.width, source.height, 0, RenderTextureFormat.R8);
+        TempRT.Create();
 
-            //temRT.width = 111;  
-            //对RT进行Blur处理  
-            RenderTexture temp1 = RenderTexture.GetTemporary(source.width >> downSample, source.height >> downSample, 0);
-            RenderTexture temp2 = RenderTexture.GetTemporary(source.width >> downSample, source.height >> downSample, 0);
+        additionalCamera.targetTexture = TempRT;
+        additionalCamera.RenderWithShader(drawSimple, "");
 
-            //高斯模糊，两次模糊，横向纵向，使用pass0进行高斯模糊  
-            TargetMaterial.SetVector("_offsets", new Vector4(0, blurSpread, 0, 0));
-            Graphics.Blit(temRT, temp1, TargetMaterial, 0);
-            TargetMaterial.SetVector("_offsets", new Vector4(blurSpread, 0, 0, 0));
-            Graphics.Blit(temp1, temp2, TargetMaterial, 0);
+        Graphics.Blit(TempRT, destination);
 
-            //如果有叠加再进行迭代模糊处理  
-            for (int i = 0; i < iterations; i++)
-            {
-                TargetMaterial.SetVector("_offsets", new Vector4(0, blurSpread, 0, 0));
-                Graphics.Blit(temp2, temp1, TargetMaterial, 0);
-                TargetMaterial.SetVector("_offsets", new Vector4(blurSpread, 0, 0, 0));
-                Graphics.Blit(temp1, temp2, TargetMaterial, 0);
-            }
+        TempRT.Release();
 
-            //用模糊图和原始图计算出轮廓图  
-            TargetMaterial.SetTexture("_BlurTex", temp2);
-            Graphics.Blit(temRT, temp1, TargetMaterial, 1);
+        //if (TargetMaterial && temRT)
+        //{
 
-            //轮廓图和场景图叠加  
-            TargetMaterial.SetTexture("_BlurTex", temp1);
-            Graphics.Blit(source, destination, TargetMaterial, 2);
+        //    //temRT.width = 111;  
+        //    //对RT进行Blur处理  
+        //    RenderTexture temp1 = RenderTexture.GetTemporary(source.width >> downSample, source.height >> downSample, 0);
+        //    RenderTexture temp2 = RenderTexture.GetTemporary(source.width >> downSample, source.height >> downSample, 0);
 
-            RenderTexture.ReleaseTemporary(temp1);
-            RenderTexture.ReleaseTemporary(temp2);
-        }
-        else
-        {
-            Graphics.Blit(source, destination);
-        }
+        //    //高斯模糊，两次模糊，横向纵向，使用pass0进行高斯模糊  
+        //    TargetMaterial.SetVector("_offsets", new Vector4(0, blurSpread, 0, 0));
+        //    Graphics.Blit(temRT, temp1, TargetMaterial, 0);
+        //    TargetMaterial.SetVector("_offsets", new Vector4(blurSpread, 0, 0, 0));
+        //    Graphics.Blit(temp1, temp2, TargetMaterial, 0);
+
+        //    //如果有叠加再进行迭代模糊处理  
+        //    for (int i = 0; i < iterations; i++)
+        //    {
+        //        TargetMaterial.SetVector("_offsets", new Vector4(0, blurSpread, 0, 0));
+        //        Graphics.Blit(temp2, temp1, TargetMaterial, 0);
+        //        TargetMaterial.SetVector("_offsets", new Vector4(blurSpread, 0, 0, 0));
+        //        Graphics.Blit(temp1, temp2, TargetMaterial, 0);
+        //    }
+
+        //    //用模糊图和原始图计算出轮廓图  
+        //    TargetMaterial.SetTexture("_BlurTex", temp2);
+        //    Graphics.Blit(temRT, temp1, TargetMaterial, 1);
+
+        //    //轮廓图和场景图叠加  
+        //    TargetMaterial.SetTexture("_BlurTex", temp1);
+        //    Graphics.Blit(source, destination, TargetMaterial, 2);
+
+        //    RenderTexture.ReleaseTemporary(temp1);
+        //    RenderTexture.ReleaseTemporary(temp2);
+        //}
+        //else
+        //{
+        //    Graphics.Blit(source, destination);
+        //}
     }
 
 }

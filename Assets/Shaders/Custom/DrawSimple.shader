@@ -1,5 +1,8 @@
 ﻿Shader "Custom/DrawSimple"
 {
+	Properties {
+		_Color ("Color", Color) = "white" {}
+	}
     SubShader 
     {
         Pass
@@ -22,7 +25,7 @@
  
             fixed4 frag(v2f i) : SV_Target  
             {
-                return fixed4(1,0,0,1);  
+                return _Color;  
             }
  
             ENDCG
