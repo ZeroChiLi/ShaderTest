@@ -9,8 +9,6 @@ public class DrawOutline : PostEffectsBase
 
     public Shader drawSimple;
 
-    [Range(0, 2)]
-    public float outlineWidth = 1f;
     public Color outlineColor = Color.green;
 
     private void Awake()
@@ -30,11 +28,10 @@ public class DrawOutline : PostEffectsBase
     {
         if (TargetMaterial != null && drawSimple != null && additionalCamera != null)
         {
-            int w = source.width / downSample;
-            int h = source.height / downSample;
-            RenderTexture TempRT = RenderTexture.GetTemporary(w, h,0);
+            RenderTexture TempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
             TempRT.Create();
             additionalCamera.targetTexture = TempRT;
+
             TargetMaterial.SetTexture("_SceneTex", source);
             TargetMaterial.SetColor("_Color", outlineColor);
 
