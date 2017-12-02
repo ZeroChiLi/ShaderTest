@@ -37,36 +37,69 @@ Shader "Custom/Post Outline"
                 return o;
             }
              
-             
             half4 frag(v2f i) : COLOR 
             {
-                int NumberOfIterations=9;
+                int NumberOfIterations = 9;
  
                 float TX_x=_MainTex_TexelSize.x;
                 float TX_y=_MainTex_TexelSize.y;
  
                 float ColorIntensityInRadius;
+				//if(tex2D(_MainTex,i.uvs.xy).r > 0)
+				//	discard;
 
                 for(int k=0;k<NumberOfIterations;k+=1)
                 {
                     for(int j=0;j<NumberOfIterations;j+=1)
                     {
-                        ColorIntensityInRadius+=tex2D(_MainTex, i.uvs.xy+float2( (k-NumberOfIterations/2)*TX_x,(j-NumberOfIterations/2)*TX_y )).r;
+                        ColorIntensityInRadius += tex2D(_MainTex, i.uvs.xy + float2( (k-NumberOfIterations/2)*TX_x,(j-NumberOfIterations/2)*TX_y ));
                     }
                 }
 
-				if(tex2D(_MainTex,i.uvs.xy).r>0)
+				if(tex2D(_MainTex,i.uvs.xy).r > 0)
 					return tex2D(_SceneTex, i.uvs) ;
 				else
-					return ColorIntensityInRadius*_Color + tex2D(_SceneTex, i.uvs) ;
-		
+					return ColorIntensityInRadius  *_Color + (1 - ColorIntensityInRadius) * tex2D(_SceneTex, i.uvs) ;
+				//return ColorIntensityInRadius  *_Color;
             }
-             
             ENDCG
- 
         }
-		     
+
+		//GrabPass{"_GrabTex"}
+
+		//Pass
+		//{
+  //          CGPROGRAM
+		//	sampler2D _GrabTex;
+		//	sampler2D _SceneTex;
+			
+  //          #pragma vertex vert
+  //          #pragma fragment frag
+  //          #include "UnityCG.cginc"
+			
+  //          struct v2f 
+  //          {
+  //              float4 pos : SV_POSITION;
+  //              float2 uvs : TEXCOORD0;
+  //          };
+
+  //          v2f vert (appdata_base v) 
+  //          {
+  //              v2f o;
+  //              o.pos = UnityObjectToClipPos(v.vertex);
+  //              o.uvs = o.pos.xy / 2 + 0.5;
+  //              return o;
+  //          }
+             
+  //          half4 frag(v2f i) : COLOR 
+  //          {
+		//		if(tex2D(_GrabTex,float2(i.uvs.x,1-i.uvs.y)).a > 0)
+		//			return tex2D(_GrabTex, float2(i.uvs.x,1-i.uvs.y));
+		//		else
+		//			return tex2D(_SceneTex, i.uvs.xy);
+
+  //          }
+  //          ENDCG
+		//}
     }
-    //end subshader
 }
-//end shader

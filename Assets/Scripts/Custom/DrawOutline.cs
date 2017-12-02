@@ -1,19 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DrawOutline : PostEffectsBase
 {
     public Camera additionalCamera;
-    public MeshFilter targetMesh;
 
-    public Shader blurShader;
-    private Material blurMaterial = null;
-    public Material BlurMaterial { get { return CheckShaderAndCreateMaterial(blurShader, ref blurMaterial); } }
-
-    public Shader outlineShader;
-    private Material outlineMaterial = null;
-    public Material OutlineMaterial { get { return CheckShaderAndCreateMaterial(outlineShader, ref outlineMaterial); } }
+    [Range(1, 8)]
+    public int downSample = 2;                  // 减少采样倍数的平方。越大，处理像素越少，过大可能会像素化
 
     public Shader drawSimple;
 
@@ -32,25 +24,28 @@ public class DrawOutline : PostEffectsBase
         additionalCamera.clearFlags = CameraClearFlags.Color;
         additionalCamera.backgroundColor = Color.black;
         additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");
-
     }
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        RenderTexture TempRT = new RenderTexture(source.width, source.height, 0, RenderTextureFormat.R8);
-        TempRT.Create();
-        additionalCamera.targetTexture = TempRT;
-        OutlineMaterial.SetTexture("_SceneTex", source);
-        OutlineMaterial.SetColor("_Color", outlineColor);
+        if (TargetMaterial != null && drawSimple != null && additionalCamera != null)
+        {
+            int w = source.width / downSample;
+            int h = source.height / downSample;
+            RenderTexture TempRT = RenderTexture.GetTemporary(w, h,0);
+            TempRT.Create();
+            additionalCamera.targetTexture = TempRT;
+            TargetMaterial.SetTexture("_SceneTex", source);
+            TargetMaterial.SetColor("_Color", outlineColor);
 
-        additionalCamera.RenderWithShader(drawSimple, "");
-        //Graphics.Blit(TempRT, destination);
+            additionalCamera.RenderWithShader(drawSimple, "");
 
-        Graphics.Blit(TempRT, destination, OutlineMaterial, 0);
+            Graphics.Blit(TempRT, destination, TargetMaterial, 0);
 
-
-        TempRT.Release();
-
+            TempRT.Release();
+        }
+        else
+            Graphics.Blit(source, destination);
     }
 
 }
