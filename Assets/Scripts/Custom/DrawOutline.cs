@@ -3,13 +3,13 @@
 public class DrawOutline : PostEffectsBase
 {
     public Camera additionalCamera;
-
-    [Range(1, 8)]
-    public int downSample = 2;                  // 减少采样倍数的平方。越大，处理像素越少，过大可能会像素化
-
     public Shader drawSimple;
 
     public Color outlineColor = Color.green;
+    [Range(0, 10)]
+    public int outlineWidth = 4;
+    [Range(0, 9)]
+    public int iterations = 1;
 
     private void Awake()
     {
@@ -34,6 +34,8 @@ public class DrawOutline : PostEffectsBase
 
             TargetMaterial.SetTexture("_SceneTex", source);
             TargetMaterial.SetColor("_Color", outlineColor);
+            TargetMaterial.SetInt("_Width", outlineWidth);
+            TargetMaterial.SetInt("_Iterations", iterations);
 
             additionalCamera.RenderWithShader(drawSimple, "");
 
