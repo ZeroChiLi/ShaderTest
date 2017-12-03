@@ -3,7 +3,7 @@
 public class DrawOutline : PostEffectsBase
 {
     public Camera additionalCamera;
-    public Shader drawSimple;
+    public Shader drawOccupied;
 
     public Color outlineColor = Color.green;
     [Range(0, 10)]
@@ -21,24 +21,25 @@ public class DrawOutline : PostEffectsBase
         additionalCamera.CopyFrom(MainCamera);
         additionalCamera.clearFlags = CameraClearFlags.Color;
         additionalCamera.backgroundColor = Color.black;
-        additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");
+        additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");       // 只渲染"Outline"层的物体
     }
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
-        if (TargetMaterial != null && drawSimple != null && additionalCamera != null)
+        if (TargetMaterial != null && drawOccupied != null && additionalCamera != null)
         {
             RenderTexture TempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
-            TempRT.Create();
             additionalCamera.targetTexture = TempRT;
+
+            // 额外相机中使用shader，绘制出物体所占面积
+            additionalCamera.RenderWithShader(drawOccupied, "");
 
             TargetMaterial.SetTexture("_SceneTex", source);
             TargetMaterial.SetColor("_Color", outlineColor);
             TargetMaterial.SetInt("_Width", outlineWidth);
             TargetMaterial.SetInt("_Iterations", iterations);
 
-            additionalCamera.RenderWithShader(drawSimple, "");
-
+            // 使用描边混合材质实现描边效果
             Graphics.Blit(TempRT, destination, TargetMaterial, 0);
 
             TempRT.Release();
