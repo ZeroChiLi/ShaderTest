@@ -51,13 +51,13 @@ Shader "Custom/DrawOutline"
 				// 类似高斯模糊，只是这里的核权重不重要，只要最后计算大于0，说明该像素属于外边范围内。
                 for(int k = 0;k < iterations;k += 1)
                     for(int j = 0;j < iterations;j += 1)
-                        ColorIntensityInRadius += tex2D(_MainTex, i.uv.xy + float2((k - iterations/2) * TX_x,(j - iterations/2) * TX_y));
+					    ColorIntensityInRadius += tex2D(_MainTex, i.uv.xy + float2((k - iterations/2) * TX_x,(j - iterations/2) * TX_y));
 
 				// 如果该像素有颜色（原来所占面积），或者该像素不在外边范围内，直接渲染原场景。否则就渲染为外边颜色。
 				if(tex2D(_MainTex,i.uv.xy).r > 0 || ColorIntensityInRadius == 0)
 					return tex2D(_SceneTex, i.uv);
 				else
-					return _Color;
+					return _Color.a * _Color + (1 - _Color.a) * tex2D(_SceneTex, i.uv);
             }
             ENDCG
         }
