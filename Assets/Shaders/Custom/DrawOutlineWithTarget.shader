@@ -7,6 +7,7 @@ Shader "Custom/DrawOutlineWithTarget" {
 	SubShader {
 		Tags { "Queue" = "Transparent" }
 		Pass {
+			ZWrite OFF							// 关闭深度写入
 			Cull Front							// 剔除正面
 			Blend SrcAlpha OneMinusSrcAlpha		// 透明混合颜色
 
