@@ -40,7 +40,7 @@ public class DrawOutline : PostEffectsBase
             TargetMaterial.SetInt("_Iterations", iterations);
 
             // 使用描边混合材质实现描边效果
-            Graphics.Blit(TempRT, destination, TargetMaterial, 0);
+            Graphics.Blit(TempRT, destination, TargetMaterial);
 
             TempRT.Release();
         }

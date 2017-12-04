@@ -1,10 +1,14 @@
 fileFormatVersion: 2
 guid: 85bfcecb75e5e8c428a0d942af642982
-timeCreated: 1512291017
+timeCreated: 1512356555
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - targetShader: {fileID: 4800000, guid: 2c5a6452d929a6844814c389a893dce4, type: 3}
+  - targetMeshFilter: {instanceID: 0}
+  - targetMeshRenderer: {instanceID: 0}
+  - target: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
