@@ -5,6 +5,7 @@ Shader "Custom/DrawOutlineWithTarget" {
 		_Width ("Outline Width", Float) = 0.5
 	}
 	SubShader {
+		Tags { "Queue" = "Transparent" }
 		Pass {
 			Cull Front							// 剔除正面
 			Blend SrcAlpha OneMinusSrcAlpha		// 透明混合颜色
