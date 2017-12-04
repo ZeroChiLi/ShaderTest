@@ -72,8 +72,8 @@ public class GaussianBlur : PostEffectsBase
         int rtH = src.height / downSample;
 
         RenderTexture buffer0 = RenderTexture.GetTemporary(rtW, rtH, 0);
+        RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
         buffer0.filterMode = FilterMode.Bilinear;
-
         Graphics.Blit(src, buffer0);                            // 用到所有Pass块
 
         // buffer0 存将要被处理的缓存，buffer1存搞好的
@@ -81,22 +81,13 @@ public class GaussianBlur : PostEffectsBase
         {
             material.SetFloat("_BlurSize", 1.0f + (i + 1) * blurSpread);
 
-            RenderTexture buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);
-
-            Graphics.Blit(buffer0, buffer1, material, 0);       // 竖直，存到buffer1中
-
-            RenderTexture.ReleaseTemporary(buffer0);            // 放掉buffer0，重新存入竖直
-            buffer0 = buffer1;
-            buffer1 = RenderTexture.GetTemporary(rtW, rtH, 0);  // 把buffer1存入水平
-
-            Graphics.Blit(buffer0, buffer1, material, 1);
-
-            RenderTexture.ReleaseTemporary(buffer0);            // 再放掉buffer0，重新存入水平
-            buffer0 = buffer1;
+            Graphics.Blit(buffer0, buffer1, material, 0);
+            Graphics.Blit(buffer1, buffer0, material, 1);
         }
 
         Graphics.Blit(buffer0, dest);
         RenderTexture.ReleaseTemporary(buffer0);
+        RenderTexture.ReleaseTemporary(buffer1);
     }
 
 }

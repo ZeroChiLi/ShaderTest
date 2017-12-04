@@ -60,13 +60,13 @@ Shader "Custom/Chapter 13/Motion Blur With Depth Texture" {
 			
 			// 邻域像素采样，相加求平均
 			float2 uv = i.uv;
-			float4 c = tex2D(_MainTex, uv);
+			float vecColRate[3] = { 0.7,0.2,0.1 };
+			float4 c = tex2D(_MainTex, uv) * vecColRate[0];
 			uv += velocity * _BlurSize;
 			for (int it = 1; it < 3; it++, uv += velocity * _BlurSize) {
 				float4 currentColor = tex2D(_MainTex, uv);
-				c += currentColor;
+				c += currentColor * vecColRate[it];
 			}
-			c /= 3;
 			
 			return fixed4(c.rgb, 1.0);
 		}
