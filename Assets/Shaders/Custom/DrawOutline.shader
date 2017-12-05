@@ -13,6 +13,8 @@ Shader "Custom/DrawOutline"
     {
         Pass 
         {
+			ZWrite Off
+
             CGPROGRAM
      
             sampler2D _MainTex;
