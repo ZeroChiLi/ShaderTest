@@ -17,6 +17,7 @@ public class DrawOutline1 : PostEffectsBase
     public GameObject[] targets;
 
     private MeshFilter[] meshFilters;
+    private RenderTexture tempRT;
 
     private void Awake()
     {
@@ -28,15 +29,15 @@ public class DrawOutline1 : PostEffectsBase
         additionalCamera.CopyFrom(MainCamera);
         additionalCamera.clearFlags = CameraClearFlags.Color;
         additionalCamera.backgroundColor = Color.black;
-        //additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("Outline");       // 只渲染"Outline"层的物体
+        additionalCamera.cullingMask = 1 << LayerMask.NameToLayer("PostEffect");       // 标记渲染"PostEffect"层的物体
     }
 
     void OnRenderImage(RenderTexture source, RenderTexture destination)
     {
         if (TargetMaterial != null && drawOccupied != null && additionalCamera != null && targets != null)
         {
-            RenderTexture TempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
-            additionalCamera.targetTexture = TempRT;
+            tempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
+            additionalCamera.targetTexture = tempRT;
 
             for (int i = 0; i < targets.Length; i++)
             {
@@ -44,12 +45,9 @@ public class DrawOutline1 : PostEffectsBase
                     continue;
                 meshFilters = targets[i].GetComponentsInChildren<MeshFilter>();
                 for (int j = 0; j < meshFilters.Length; j++)
-                    Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, OccupiedMaterial, 0,additionalCamera);
+                    Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, OccupiedMaterial, LayerMask.NameToLayer("PostEffect"), additionalCamera); // 描绘选中物体的所占面积
             }
-            additionalCamera.Render();
-
-            //// 额外相机中使用shader，绘制出物体所占面积
-            //additionalCamera.RenderWithShader(drawOccupied, "");
+            additionalCamera.Render();  // 需要调用渲染函数，才能及时把描绘物体渲染到纹理中
 
             TargetMaterial.SetTexture("_SceneTex", source);
             TargetMaterial.SetColor("_Color", outlineColor);
@@ -57,9 +55,9 @@ public class DrawOutline1 : PostEffectsBase
             TargetMaterial.SetInt("_Iterations", iterations);
 
             // 使用描边混合材质实现描边效果
-            Graphics.Blit(TempRT, destination, TargetMaterial);
+            Graphics.Blit(tempRT, destination, TargetMaterial);
 
-            TempRT.Release();
+            tempRT.Release();
         }
         else
             Graphics.Blit(source, destination);

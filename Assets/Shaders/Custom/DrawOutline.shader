@@ -11,9 +11,10 @@ Shader "Custom/DrawOutline"
     }
     SubShader 
     {
+		Tags { "Queue" = "Transparent" }
         Pass 
         {
-			ZWrite Off
+			ZTest Always Cull Off ZWrite Off
 
             CGPROGRAM
      

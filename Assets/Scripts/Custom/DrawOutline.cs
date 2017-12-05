@@ -11,6 +11,8 @@ public class DrawOutline : PostEffectsBase
     [Range(0, 9)]
     public int iterations = 1;
 
+    private RenderTexture tempRT;
+
     private void Awake()
     {
         SetupAddtionalCamera();
@@ -28,8 +30,8 @@ public class DrawOutline : PostEffectsBase
     {
         if (TargetMaterial != null && drawOccupied != null && additionalCamera != null)
         {
-            RenderTexture TempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
-            additionalCamera.targetTexture = TempRT;
+            tempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
+            additionalCamera.targetTexture = tempRT;
 
             // 额外相机中使用shader，绘制出物体所占面积
             additionalCamera.RenderWithShader(drawOccupied, "");
@@ -40,9 +42,9 @@ public class DrawOutline : PostEffectsBase
             TargetMaterial.SetInt("_Iterations", iterations);
 
             // 使用描边混合材质实现描边效果
-            Graphics.Blit(TempRT, destination, TargetMaterial);
+            Graphics.Blit(tempRT, destination, TargetMaterial);
 
-            TempRT.Release();
+            tempRT.Release();
         }
         else
             Graphics.Blit(source, destination);
