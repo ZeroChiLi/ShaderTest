@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class DrawOutlineWithTarget : PostEffectsBase
+public class DrawOutlin2 : PostEffectsBase
 {
     public GameObject[] targets;
 

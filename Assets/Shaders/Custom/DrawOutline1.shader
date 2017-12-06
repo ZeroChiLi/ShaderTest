@@ -1,5 +1,5 @@
 ﻿
-Shader "Custom/DrawOutline"
+Shader "Custom/DrawOutline1"
 {
     Properties
     {

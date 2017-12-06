@@ -1,5 +1,5 @@
 ﻿
-Shader "Custom/DrawOutlineWithTarget" {
+Shader "Custom/DrawOutline3" {
 	Properties {
 		_Color ("Outline Color", Color) = (0,0,0,1)
 		_Width ("Outline Width", Float) = 0.5
