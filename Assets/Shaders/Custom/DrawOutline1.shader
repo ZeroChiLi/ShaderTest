@@ -57,7 +57,7 @@ Shader "Custom/DrawOutline1"
                 for(int k = 0;k < iterations;k += 1)
                     for(int j = 0;j < iterations;j += 1)
 						if((k-r)*(k-r) + (j-r)*(j-r) <= r * r)
-							ColorIntensityInRadius += tex2D(_MainTex, i.uv.xy + float2((k - iterations/2) * TX_x,(j - iterations/2) * TX_y));
+							ColorIntensityInRadius += tex2D(_MainTex, i.uv.xy + float2((k - r) * TX_x,(j - r) * TX_y));
 
 				// 如果该像素有颜色（原来所占面积），或者该像素不在外边范围内，直接渲染原场景。否则就渲染为外边颜色。
 				if(tex2D(_MainTex,i.uv.xy).r > 0 || ColorIntensityInRadius == 0)
