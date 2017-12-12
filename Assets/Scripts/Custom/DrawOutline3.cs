@@ -36,6 +36,7 @@ public class DrawOutline3 : PostEffectsBase
     {
         if (TargetMaterial != null && drawOccupied != null && additionalCamera != null && targets != null)
         {
+            SetupAddtionalCamera();
             tempRT = RenderTexture.GetTemporary(source.width, source.height, 0);
             additionalCamera.targetTexture = tempRT;
 
@@ -45,7 +46,8 @@ public class DrawOutline3 : PostEffectsBase
                     continue;
                 meshFilters = targets[i].GetComponentsInChildren<MeshFilter>();
                 for (int j = 0; j < meshFilters.Length; j++)
-                    Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, OccupiedMaterial, LayerMask.NameToLayer("PostEffect"), additionalCamera); // 描绘选中物体的所占面积
+                    if ((MainCamera.cullingMask & (1 << meshFilters[j].gameObject.layer)) != 0) // 把主相机没渲染的也不加入渲染队列
+                        Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, OccupiedMaterial, LayerMask.NameToLayer("PostEffect"), additionalCamera); // 描绘选中物体的所占面积
             }
             additionalCamera.Render();  // 需要调用渲染函数，才能及时把描绘物体渲染到纹理中
 
