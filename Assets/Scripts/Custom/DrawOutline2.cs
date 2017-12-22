@@ -23,7 +23,8 @@ public class DrawOutline2 : PostEffectsBase
                     continue;
                 meshFilters = targets[i].GetComponentsInChildren<MeshFilter>();
                 for (int j = 0; j < meshFilters.Length; j++)
-                    Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, TargetMaterial, 0);
+                    for (int k = 0; k < meshFilters[j].sharedMesh.subMeshCount; k++)    // 每个网格还有子网格 
+                        Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, TargetMaterial, 0, MainCamera, k);
             }
         }
     }

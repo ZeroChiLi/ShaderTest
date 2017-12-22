@@ -47,7 +47,8 @@ public class DrawOutline3 : PostEffectsBase
                 meshFilters = targets[i].GetComponentsInChildren<MeshFilter>();
                 for (int j = 0; j < meshFilters.Length; j++)
                     if ((MainCamera.cullingMask & (1 << meshFilters[j].gameObject.layer)) != 0) // 把主相机没渲染的也不加入渲染队列
-                        Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, OccupiedMaterial, LayerMask.NameToLayer("PostEffect"), additionalCamera); // 描绘选中物体的所占面积
+                        for (int k = 0; k < meshFilters[j].sharedMesh.subMeshCount; k++)
+                            Graphics.DrawMesh(meshFilters[j].sharedMesh, meshFilters[j].transform.localToWorldMatrix, OccupiedMaterial, LayerMask.NameToLayer("PostEffect"), additionalCamera,k); // 描绘选中物体的所占面积
             }
             additionalCamera.Render();  // 需要调用渲染函数，才能及时把描绘物体渲染到纹理中
 
